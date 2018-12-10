@@ -10,10 +10,16 @@
 #define XSTR(x) #x
 #define STR(x) XSTR(x)
 
-extern int main(int argc, char** argv);
-extern void trap_entry();
+#ifndef VECT_IRQ
+  #define TRAP_ENTRY trap_entry
+#else
+  #define TRAP_ENTRY vtrap_entry
+#endif
 
-static unsigned long get_cpu_freq()
+extern int main(int argc, char** argv);
+extern void TRAP_ENTRY();
+
+unsigned long get_cpu_freq()
 {
   return CPU_FREQ;
 }
@@ -57,6 +63,8 @@ typedef void (*my_interrupt_function_ptr_t) (void);
 extern my_interrupt_function_ptr_t localISR[];
 #endif
 
+#ifndef VECT_IRQ
+uintptr_t handle_trap(uintptr_t mcause, uintptr_t epc) __attribute__((noinline));
 uintptr_t handle_trap(uintptr_t mcause, uintptr_t epc)
 {
   if (0){
@@ -81,6 +89,17 @@ uintptr_t handle_trap(uintptr_t mcause, uintptr_t epc)
   }
   return epc;
 }
+#endif 
+
+#ifdef USE_CLIC
+void trap_entry(void) __attribute__((interrupt("SiFive-CLIC-preemptible"), aligned(64)));
+void trap_entry(void)
+{
+  unsigned long mcause = read_csr(mcause);
+  unsigned long mepc = read_csr(mepc);
+  handle_trap(mcause, mepc);
+}
+#endif
 
 void _init()
 {
@@ -89,7 +108,12 @@ void _init()
 
   puts("core freq at " STR(CPU_FREQ) " Hz\n");
 
-  write_csr(mtvec, &trap_entry);
+#ifdef USE_CLIC
+  write_csr(mtvec, ((unsigned long)&trap_entry | MTVEC_CLIC));
+#else
+  write_csr(mtvec, ((unsigned long)&TRAP_ENTRY | MTVEC_VECTORED));
+#endif
+
   #endif
 }
 
