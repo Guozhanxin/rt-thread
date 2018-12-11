@@ -1,7 +1,7 @@
 //See LICENSE for license details.
 #include <stdint.h>
 #include <stdio.h>
-#include <unistd.h>
+#include <string.h>
 
 #include "platform.h"
 #include "encoding.h"
@@ -84,8 +84,7 @@ uintptr_t handle_trap(uintptr_t mcause, uintptr_t epc)
 #endif
   }
   else {
-    write(1, "Unhandled Trap:\n", 16);
-    _exit(1 + mcause);
+    rt_kprintf("Unhandled Trap.\n");
   }
   return epc;
 }
@@ -106,7 +105,7 @@ void _init()
   #ifndef NO_INIT
   uart_init(115200);
 
-  puts("core freq at " STR(CPU_FREQ) " Hz\n");
+  rt_kprintf("core freq at %ld Hz\n", get_cpu_freq());
 
 #ifdef USE_CLIC
   write_csr(mtvec, ((unsigned long)&trap_entry | MTVEC_CLIC));

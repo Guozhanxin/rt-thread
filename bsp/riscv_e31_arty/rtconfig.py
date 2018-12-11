@@ -10,7 +10,7 @@ if os.getenv('RTT_CC'):
 
 if  CROSS_TOOL == 'gcc':
     PLATFORM    = 'gcc'
-    EXEC_PATH   = r'D:\Developer\FreedomStudio\SiFive\riscv64-unknown-elf-gcc-20181127-x86_64-w64-mingw32\bin'
+    EXEC_PATH   = r'/opt/unknown-gcc/bin'
 else:
     print('Please make sure your toolchains is GNU GCC!')
     exit(0)
@@ -23,7 +23,7 @@ BUILD = 'debug'
 
 CORE = 'risc-v'
 MAP_FILE = 'rtthread.map'
-LINK_FILE = './freedom-e-sdk/bsp/env/freedom-e300-hifive1/flash.lds'
+LINK_FILE = './freedom-e-sdk/bsp/env/coreplexip-e31-arty/flash.lds'
 TARGET_NAME = 'rtthread.bin'
 
 #------- GCC settings ----------------------------------------------------------

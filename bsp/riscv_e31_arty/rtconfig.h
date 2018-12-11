@@ -38,7 +38,8 @@
 #define RT_USING_DEVICE
 #define RT_USING_CONSOLE
 #define RT_CONSOLEBUF_SIZE 128
-#define RT_CONSOLE_DEVICE_NAME "dusart"
+#define RT_CONSOLE_DEVICE_NAME "usart0"
+#define RT_VER_NUM 0x40000
 
 /* RT-Thread Components */
 

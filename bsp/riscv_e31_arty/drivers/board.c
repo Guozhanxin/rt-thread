@@ -21,16 +21,14 @@
  * Date           Author       Notes
  */
 
-#include <interrupt.h>
 #include <rthw.h>
 
 #include <board.h>
 #include <platform.h>
 #include <encoding.h>
-#include <interrupt.h>
 
-extern void use_default_clocks(void);
-extern void use_pll(int refsel, int bypass, int r, int f, int q);
+// extern void use_default_clocks(void);
+// extern void use_pll(int refsel, int bypass, int r, int f, int q);
 
 #define TICK_COUNT  (2 * RTC_FREQ / RT_TICK_PER_SECOND)
 
@@ -52,8 +50,8 @@ void *__wrap_memset(void *s, int c, size_t n)
 
 static void rt_hw_clock_init(void)
 {
-    use_default_clocks();
-    use_pll(0, 0, 1, 31, 1);
+    // use_default_clocks();
+    // use_pll(0, 0, 1, 31, 1);
 }
 
 static void rt_hw_timer_init(void)

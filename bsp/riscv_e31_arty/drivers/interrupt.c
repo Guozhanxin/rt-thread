@@ -25,7 +25,6 @@
 #include <plic_driver.h>
 #include <platform.h>
 #include <encoding.h>
-#include <interrupt.h>
 
 #define MAX_HANDLERS    PLIC_NUM_INTERRUPTS
 
@@ -47,7 +46,7 @@ void rt_hw_interrupt_mask(int irq)
  * This function will un-mask a interrupt.
  * @param vector the interrupt number
  */
-void rt_hw_interrupt_unmask(int irq)
+void rt_hw_interrupt_umask(int irq)
 {
     PLIC_enable_interrupt(&g_plic, irq);
     PLIC_set_priority(&g_plic, irq, 1);
@@ -143,6 +142,8 @@ void handle_m_ext_interrupt(void)
 
     /* get irq number */
     irq = rt_hw_interrupt_get_active(0);
+
+    rt_kprintf("irq = %ld\n",irq);
 
     /* get interrupt service routine */
     isr_func = irq_desc[irq].handler;

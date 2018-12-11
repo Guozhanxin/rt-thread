@@ -22,10 +22,10 @@
  */
 
 #include <rtdevice.h>
+#include <rthw.h>
 
 #include <encoding.h>
 #include <platform.h>
-#include <interrupt.h>
 
 static void usart_handler(int vector, void *param)
 {
@@ -38,10 +38,10 @@ static rt_err_t usart_configure(struct rt_serial_device *serial,
     RT_ASSERT(serial != RT_NULL);
     RT_ASSERT(cfg != RT_NULL);
  
-    GPIO_REG(GPIO_IOF_SEL) &= ~IOF0_UART0_MASK;
-    GPIO_REG(GPIO_IOF_EN) |= IOF0_UART0_MASK;
+//    GPIO_REG(GPIO_IOF_SEL) &= ~3;
+//    GPIO_REG(GPIO_IOF_EN) |= 3;
 
-    UART0_REG(UART_REG_DIV) = get_cpu_freq() / cfg->baud_rate - 1;
+    UART0_REG(UART_REG_DIV) = (get_cpu_freq() / 2) / cfg->baud_rate - 1;
     UART0_REG(UART_REG_TXCTRL) |= UART_TXEN;
     UART0_REG(UART_REG_RXCTRL) |= UART_RXEN;
     UART0_REG(UART_REG_IE) = UART_IP_RXWM;
@@ -75,9 +75,9 @@ static int usart_putc(struct rt_serial_device *serial, char c)
 
 static int usart_getc(struct rt_serial_device *serial)
 {
-    rt_int32_t val = UART0_REG(UART_REG_RXFIFO);
+    rt_int32_t val = (rt_int32_t) UART0_REG(UART_REG_RXFIFO);
     if (val > 0)
-        return (rt_uint8_t)val;
+        return val & 0xFF;
     else
         return -1;
 }
@@ -106,18 +106,18 @@ int rt_hw_uart_init(void)
 {
     rt_hw_serial_register(
         &serial,
-        "dusart",
+        "usart0",
         RT_DEVICE_FLAG_STREAM
         | RT_DEVICE_FLAG_RDWR
         | RT_DEVICE_FLAG_INT_RX, RT_NULL);
 
     rt_hw_interrupt_install(
-        INT_UART0_BASE,
+        UART0_INT_BASE,
         usart_handler,
         (void *) & (serial.parent),
         "uart interrupt");
 
-    rt_hw_interrupt_unmask(INT_UART0_BASE);
+    rt_hw_interrupt_umask(UART0_INT_BASE);
 
     return 0;
 }

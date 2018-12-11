@@ -28,5 +28,11 @@
 
 int main(void)
 {
+	rt_kprintf("hello rt-thread\n");
 	return 0;
+}
+int secondary_main(void)
+{
+	rt_kprintf("hello i'm two hart\n");
+	while(1);
 }
