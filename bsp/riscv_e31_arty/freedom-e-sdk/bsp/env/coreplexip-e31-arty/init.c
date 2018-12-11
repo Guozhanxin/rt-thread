@@ -64,7 +64,6 @@ extern my_interrupt_function_ptr_t localISR[];
 #endif
 
 #ifndef VECT_IRQ
-uintptr_t handle_trap(uintptr_t mcause, uintptr_t epc) __attribute__((noinline));
 uintptr_t handle_trap(uintptr_t mcause, uintptr_t epc)
 {
   if (0){
@@ -90,16 +89,6 @@ uintptr_t handle_trap(uintptr_t mcause, uintptr_t epc)
 }
 #endif 
 
-#ifdef USE_CLIC
-void trap_entry(void) __attribute__((interrupt("SiFive-CLIC-preemptible"), aligned(64)));
-void trap_entry(void)
-{
-  unsigned long mcause = read_csr(mcause);
-  unsigned long mepc = read_csr(mepc);
-  handle_trap(mcause, mepc);
-}
-#endif
-
 void _init()
 {
   #ifndef NO_INIT
@@ -107,11 +96,7 @@ void _init()
 
   rt_kprintf("core freq at %ld Hz\n", get_cpu_freq());
 
-#ifdef USE_CLIC
-  write_csr(mtvec, ((unsigned long)&trap_entry | MTVEC_CLIC));
-#else
   write_csr(mtvec, ((unsigned long)&TRAP_ENTRY | MTVEC_VECTORED));
-#endif
 
   #endif
 }

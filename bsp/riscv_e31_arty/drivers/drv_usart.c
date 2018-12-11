@@ -102,6 +102,11 @@ static struct rt_serial_device serial =
     .config.bufsz     = RT_SERIAL_RB_BUFSZ,
 };
 
+static void usart_idle_handle(void)
+{
+	rt_hw_serial_isr((struct rt_serial_device *)&(serial.parent), RT_SERIAL_EVENT_RX_IND);
+}
+
 int rt_hw_uart_init(void)
 {
     rt_hw_serial_register(
@@ -111,13 +116,14 @@ int rt_hw_uart_init(void)
         | RT_DEVICE_FLAG_RDWR
         | RT_DEVICE_FLAG_INT_RX, RT_NULL);
 
-    rt_hw_interrupt_install(
-        UART0_INT_BASE,
-        usart_handler,
-        (void *) & (serial.parent),
-        "uart interrupt");
+//    rt_hw_interrupt_install(
+//        UART0_INT_BASE,
+//        usart_handler,
+//        (void *) & (serial.parent),
+//        "uart interrupt");
 
-    rt_hw_interrupt_umask(UART0_INT_BASE);
+//    rt_hw_interrupt_umask(UART0_INT_BASE);
+    rt_thread_idle_sethook(usart_idle_handle);
 
     return 0;
 }
