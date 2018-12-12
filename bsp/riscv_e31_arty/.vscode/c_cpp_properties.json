@@ -1,0 +1,35 @@
+{
+    "configurations": [
+        {
+            "intelliSenseMode": "clang-x64",
+            "name": "Win32",
+            "cppStandard": "c++11",
+            "cStandard": "c99",
+            "compilerPath": "D:/Developer/env/tools/gnu_gcc/riscv64-unknown-elf-gcc-2018.07.0-x86_64-w64-mingw32/bin/riscv64-unknown-elf-gcc",
+            "includePath": [
+                "G:/rt-thread-back/bsp/riscv_e31_arty",
+                "G:/rt-thread-back/bsp/riscv_e31_arty/applications",
+                "G:/rt-thread-back/bsp/riscv_e31_arty/drivers",
+                "G:/rt-thread-back/bsp/riscv_e31_arty/freedom-e-sdk/bsp/drivers",
+                "G:/rt-thread-back/bsp/riscv_e31_arty/freedom-e-sdk/bsp/drivers/fe300prci",
+                "G:/rt-thread-back/bsp/riscv_e31_arty/freedom-e-sdk/bsp/drivers/plic",
+                "G:/rt-thread-back/bsp/riscv_e31_arty/freedom-e-sdk/bsp/env",
+                "G:/rt-thread-back/bsp/riscv_e31_arty/freedom-e-sdk/bsp/env/coreplexip-e31-arty",
+                "G:/rt-thread-back/bsp/riscv_e31_arty/freedom-e-sdk/bsp/include",
+                "G:/rt-thread-back/bsp/riscv_e31_arty/freedom-e-sdk/bsp/include/sifive",
+                "G:/rt-thread-back/bsp/riscv_e31_arty/freedom-e-sdk/bsp/include/sifive/devices",
+                "G:/rt-thread-back/components/drivers/include",
+                "G:/rt-thread-back/components/finsh",
+                "G:/rt-thread-back/components/libc/compilers/minilibc",
+                "G:/rt-thread-back/include",
+                "G:/rt-thread-back/libcpu/risc-v/common",
+                "G:/rt-thread-back/libcpu/risc-v/e310"
+            ],
+            "defines": [
+                "HAVE_CCONFIG_H",
+                "RT_USING_MINILIBC"
+            ]
+        }
+    ],
+    "version": 4
+}

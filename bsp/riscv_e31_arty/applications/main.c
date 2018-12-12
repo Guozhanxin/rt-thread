@@ -26,13 +26,25 @@
 #include <string.h>
 #include <rtthread.h>
 
+extern int rt_hw_cpu_id(void);
+
+int cpu_id;
+
 int main(void)
 {
-	rt_kprintf("hello rt-thread\n");
+
+	rt_kprintf("I am cpu %d\n", cpu_id);
+
+	cpu_id = rt_hw_cpu_id();
+
+	rt_kprintf("I am cpu %d\n", cpu_id);
+
 	return 0;
 }
 int secondary_main(void)
 {
+	cpu_id = rt_hw_cpu_id();
+
 	rt_kprintf("hello i'm two hart\n");
 	while(1);
 }
