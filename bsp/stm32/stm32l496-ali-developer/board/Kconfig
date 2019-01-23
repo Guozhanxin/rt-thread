@@ -1,6 +1,6 @@
 menu "Hardware Drivers Config"
 
-config SOC_STM32L475VE
+config SOC_STM32L496VG
     bool
     select SOC_SERIES_STM32L4
     default y
@@ -8,9 +8,9 @@ config SOC_STM32L475VE
 menu "Onboard Peripheral Drivers"
 
     config BSP_USING_STLINK_TO_USART
-        bool "Enable STLINK TO USART (uart1)"
+        bool "Enable STLINK TO USART (lpuart1)"
         select BSP_USING_UART
-        select BSP_USING_UART1
+        select BSP_USING_LPUART1
         default y
 
     config BSP_USING_QSPI_FLASH
@@ -45,7 +45,7 @@ menu "On-chip Peripheral Drivers"
         if BSP_USING_UART
             config BSP_USING_UART1
                 bool "Enable UART1"
-                default y
+                default n
 
             config BSP_UART1_RX_USING_DMA
                 bool "Enable UART1 RX DMA"
@@ -60,8 +60,19 @@ menu "On-chip Peripheral Drivers"
                 bool "Enable UART2 RX DMA"
                 depends on BSP_USING_UART2 && RT_SERIAL_USING_DMA
                 default n
-        endif
 
+	    config BSP_USING_LPUART1
+	        bool "Enable LPUART1"
+	        default y
+
+	    config BSP_LPUART1_RX_USING_DMA
+	        bool "Enable LPUART1 RX DMA"
+		depends on BSP_USING_LPUART1 && RT_SERIAL_USING_DMA
+	        default n
+	endif
+		
+	
+        
     config BSP_USING_ON_CHIP_FLASH
         bool "Enable on-chip FLASH"
         default n
@@ -112,23 +123,6 @@ menu "On-chip Peripheral Drivers"
         bool "Enable QSPI DMA support"
         default n
 
-    menuconfig BSP_USING_I2C1
-        bool "Enable I2C1 BUS (software simulation)"
-        default n
-        select RT_USING_I2C
-        select RT_USING_I2C_BITOPS
-        select RT_USING_PIN
-        if BSP_USING_I2C1
-            config BSP_I2C1_SCL_PIN
-                int "i2c1 scl pin number"
-                range 1 176
-                default 15
-            config BSP_I2C1_SDA_PIN
-                int "I2C1 sda pin number"
-                range 1 176
-                default 16
-        endif
-
     menuconfig BSP_USING_I2C2
         bool "Enable I2C2 BUS (software simulation)"
         default n
@@ -139,15 +133,15 @@ menu "On-chip Peripheral Drivers"
             config BSP_I2C2_SCL_PIN
                 int "i2c2 scl pin number"
                 range 1 176
-                default 47
+                default 29
             config BSP_I2C2_SDA_PIN
                 int "I2C2 sda pin number"
                 range 1 176
-                default 48
+                default 30
         endif
 
     menuconfig BSP_USING_I2C3
-        bool "Enable I2C3 BUS (software simulation)"
+        bool "Enable I2C3 BUS CAM(software simulation)"
         default n
         select RT_USING_I2CS
         select RT_USING_I2C_BITOPS
@@ -156,11 +150,28 @@ menu "On-chip Peripheral Drivers"
             config BSP_I2C3_SCL_PIN
                 int "i2c3 scl pin number"
                 range 1 176
-                default 92
+                default 32
             config BSP_I2C3_SDA_PIN
                 int "I2C3 sda pin number"
                 range 1 176
-                default 93
+                default 33
+        endif
+
+    menuconfig BSP_USING_I2C4
+        bool "Enable I2C4 BUS (software simulation)"
+        default n
+        select RT_USING_I2CS
+        select RT_USING_I2C_BITOPS
+        select RT_USING_PIN
+        if BSP_USING_I2C4
+            config BSP_I2C4_SCL_PIN
+                int "i2c4 scl pin number"
+                range 1 176
+                default 60
+            config BSP_I2C4_SDA_PIN
+                int "i2c4 sda pin number"
+                range 1 176
+                default 61
         endif
 
     menuconfig BSP_USING_TIM
@@ -207,6 +218,14 @@ menu "On-chip Peripheral Drivers"
         if BSP_USING_ADC
             config BSP_USING_ADC1
                 bool "Enable ADC1"
+                default n
+
+            config BSP_USING_ADC2
+                bool "Enable ADC2"
+                default n
+
+            config BSP_USING_ADC3
+                bool "Enable ADC3"
                 default n
         endif
 

@@ -37,7 +37,7 @@
 #define RT_USING_DEVICE
 #define RT_USING_CONSOLE
 #define RT_CONSOLEBUF_SIZE 256
-#define RT_CONSOLE_DEVICE_NAME "uart1"
+#define RT_CONSOLE_DEVICE_NAME "lpuart1"
 #define RT_VER_NUM 0x40000
 #define ARCH_ARM
 #define ARCH_ARM_CORTEX_M
@@ -156,7 +156,7 @@
 
 /* Hardware Drivers Config */
 
-#define SOC_STM32L475VE
+#define SOC_STM32L496VG
 
 /* Onboard Peripheral Drivers */
 
@@ -166,7 +166,8 @@
 
 #define BSP_USING_GPIO
 #define BSP_USING_UART
-#define BSP_USING_UART1
+#define BSP_USING_LPUART1
+#define BSP_LPUART1_RX_USING_DMA
 
 /* Board extended module Drivers */
 
