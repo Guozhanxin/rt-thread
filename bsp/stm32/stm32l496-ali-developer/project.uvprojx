@@ -467,6 +467,11 @@
               <FileType>1</FileType>
               <FilePath>applications\main.c</FilePath>
             </File>
+            <File>
+              <FileName>rt_sensor_test.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\rt_sensor_test.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

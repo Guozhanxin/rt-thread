@@ -13,7 +13,7 @@
 #include <board.h>
 
 /* defined the LED0 pin: PE7 */
-#define LED0_PIN    GET_PIN(E, 7)
+#define LED0_PIN    GET_PIN(B, 6)
 
 int main(void)
 {
