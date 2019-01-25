@@ -15,8 +15,6 @@
 #include <dfs_elm.h>
 #include <dfs_fs.h>
 #include <dfs_posix.h>
-#include "drv_spi.h"
-#include "spi_msd.h"
 
 #define DBG_ENABLE
 #define DBG_SECTION_NAME  "app.card"
@@ -62,14 +60,6 @@ int stm32_sdcard_mount(void)
     return RT_EOK;
 }
 INIT_APP_EXPORT(stm32_sdcard_mount);
-
-static int rt_hw_spi1_tfcard(void)
-{
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    rt_hw_spi_device_attach("spi1", "spi10", GPIOC, GPIO_PIN_3);
-    return msd_init("sd0", "spi10");
-}
-INIT_DEVICE_EXPORT(rt_hw_spi1_tfcard);
 
 #endif /* BSP_USING_SDCARD */
 
