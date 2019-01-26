@@ -13,11 +13,10 @@ menu "Onboard Peripheral Drivers"
         select BSP_USING_LPUART1
         default y
 
-    config BSP_USING_QSPI_FLASH
-        bool "Enable QSPI FLASH"
-        select BSP_USING_QSPI
-        select RT_USING_SFUD
-        select RT_SFUD_USING_QSPI
+    config BSP_USING_SPI_LCD
+        bool "Enable SPI LCD"
+        select BSP_USING_SPI
+        select BSP_USING_SPI1
         default n
 
     config BSP_USING_SDCARD
