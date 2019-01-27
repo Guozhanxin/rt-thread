@@ -187,7 +187,6 @@ static rt_size_t rt_sensor_read(rt_device_t dev, rt_off_t pos, void *buf, rt_siz
 static rt_err_t rt_sensor_control(rt_device_t dev, int cmd, void *args)
 {
     rt_sensor_t sensor = (rt_sensor_t)dev;
-    struct rt_sensor_config *config;
     rt_err_t result = RT_EOK;
     RT_ASSERT(dev != RT_NULL);
 

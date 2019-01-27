@@ -106,6 +106,8 @@
 #define RT_MMCSD_THREAD_PREORITY 22
 #define RT_MMCSD_MAX_PARTITION 16
 #define RT_SDIO_DEBUG
+#define RT_USING_SENSOR
+#define RT_USING_SENSOR_TEST
 
 /* Using WiFi */
 
@@ -115,6 +117,8 @@
 
 /* POSIX layer and C standard library */
 
+#define RT_USING_LIBC
+#define RT_USING_POSIX
 
 /* Network */
 

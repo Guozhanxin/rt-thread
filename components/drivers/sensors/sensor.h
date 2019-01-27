@@ -21,6 +21,18 @@
 #define RT_SEN_CLASS_TVOC              (10) /* TVOC Level        */
 #define RT_SEN_CLASS_NOISE             (11) /* Noise Loudness    */
 
+#define SEN_ACCE_NAME               "_acc"  /* Accelerometer     */
+#define SEN_GYRO_NAME               "_gyr"  /* Gyroscope         */
+#define SEN_MAG_NAME                "_mag"  /* Magnetometer      */
+#define SEN_TEMP_NAME               "_tem"  /* Temperature       */
+#define SEN_HUMI_NAME               "_hum"  /* Relative Humidity */
+#define SEN_BARO_NAME               "_ba"   /* Barometer         */
+#define SEN_LIGHT_NAME              "_li"   /* Ambient light     */
+#define SEN_PROXIMITY_NAME          "_pr"   /* Proximity         */
+#define SEN_HR_NAME                 "_hr"   /* Heart Rate        */
+#define SEN_TVOC_NAME               "_tv"   /* TVOC Level        */
+#define SEN_NOISE_NAME              "_noi"  /* Noise Loudness    */
+
 /* Sensor vendor types */           
 
 #define RT_SEN_VENDOR_UNKNOWN          (0)
@@ -78,6 +90,12 @@
 
 #define  RT_PIN_NONE                0xFFFF  /* RT PIN NONE   */
 #define  RT_SEN_MODULE_MAX             (3)
+
+#ifdef RT_USING_RTC
+#define  rt_sen_get_timestamp()   time()
+#else
+#define  rt_sen_get_timestamp()   rt_tick_get()
+#endif
 
 struct rt_sensor_info
 {

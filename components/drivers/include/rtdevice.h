@@ -95,6 +95,10 @@ extern "C" {
 #include "drivers/audio.h"
 #endif
 
+//#ifdef RT_USING_SENSOR
+//#include "drivers/sensor.h"
+//#endif
+
 #ifdef RT_USING_CPUTIME
 #include "drivers/cputime.h"
 #endif
