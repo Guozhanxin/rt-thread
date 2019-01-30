@@ -18,17 +18,23 @@ static void sensor_show_data(rt_sensor_t sensor, struct rt_sensor_data *sensor_d
     case RT_SEN_CLASS_ACCE:
         LOG_I("x:%5d, y:%5d, z:%5d, timestamp:%5d", sensor_data->data.acce.x, sensor_data->data.acce.y, sensor_data->data.acce.z, sensor_data->timestamp);
         break;
+    case RT_SEN_CLASS_GYRO:
+        LOG_I("x:%8d, y:%8d, z:%8d, timestamp:%5d", sensor_data->data.gyro.x, sensor_data->data.gyro.y, sensor_data->data.gyro.z, sensor_data->timestamp);
+        break;
     case RT_SEN_CLASS_MAG:
         LOG_I("x:%5d, y:%5d, z:%5d, timestamp:%5d", sensor_data->data.mag.x, sensor_data->data.mag.y, sensor_data->data.mag.z, sensor_data->timestamp);
         break;
     case RT_SEN_CLASS_HUMI:
-        LOG_I("humi:%3d.%d%%, timestamp:%5d", sensor_data->data.humi/10, sensor_data->data.humi%10, sensor_data->timestamp);
+        LOG_I("humi:%3d.%d%%, timestamp:%5d", sensor_data->data.humi / 10, sensor_data->data.humi % 10, sensor_data->timestamp);
         break;
     case RT_SEN_CLASS_TEMP:
-        LOG_I("temp:%5d, timestamp:%5d", sensor_data->data.temp, sensor_data->timestamp);
+        LOG_I("temp:%3d.%dC, timestamp:%5d", sensor_data->data.temp / 10, sensor_data->data.temp % 10, sensor_data->timestamp);
         break;
     case RT_SEN_CLASS_BARO:
         LOG_I("press:%5d, timestamp:%5d", sensor_data->data.baro, sensor_data->timestamp);
+        break;
+    case RT_SEN_CLASS_STEP:
+        LOG_I("step:%5d, timestamp:%5d", sensor_data->data.step, sensor_data->timestamp);
         break;
     default:
         break;
@@ -68,16 +74,21 @@ static void sensor_rx_entry(void *parameter)
                 LOG_I("num:%3d, x:%5d, y:%5d, z:%5d, timestamp:%5d", i, data[i].data.mag.x, data[i].data.mag.y, data[i].data.mag.z, data[i].timestamp);
                 break;
             case RT_SEN_CLASS_HUMI:
-                LOG_I("num:%3d, humi:%3d.%d%%, timestamp:%5d", i, data[i].data.humi/10, data[i].data.humi%10, data[i].timestamp);
+                LOG_I("num:%3d, humi:%3d.%d%%, timestamp:%5d", i, data[i].data.humi / 10, data[i].data.humi % 10, data[i].timestamp);
                 break;
             case RT_SEN_CLASS_BARO:
                 LOG_I("num:%3d, baro:%5d, timestamp:%5d", i, data[i].data.baro, data[i].timestamp);
+                break;
+            case RT_SEN_CLASS_TEMP:
+                LOG_I("num:%3d, temp:%3d.%dC, timestamp:%5d", i, data[i].data.temp / 10, data[i].data.temp % 10, data[i].timestamp);
+                break;
+            case RT_SEN_CLASS_STEP:
+                LOG_I("num:%3d, step:%5d, timestamp:%5d", i, data[i].data.step, data[i].timestamp);
                 break;
             default:
                 break;
             }
         }
-//        rt_device_control(dev, RT_SEN_CTRL_CLEAR_INT, RT_NULL);
     }
 }
 
@@ -86,12 +97,11 @@ static void sensor_fifo(int argc, char **argv)
     static rt_thread_t tid1 = RT_NULL;
     rt_device_t dev = RT_NULL;
     rt_sensor_t sensor;
-    rt_uint8_t reg = 0xFF;
 
     dev = rt_device_find(argv[1]);
     if (dev == RT_NULL)
     {
-        LOG_I("Can't find device:%s", argv[1]);
+        LOG_E("Can't find device:%s", argv[1]);
         return;
     }
     sensor = (rt_sensor_t)dev;
@@ -107,15 +117,11 @@ static void sensor_fifo(int argc, char **argv)
 
     /* int */
     rt_device_set_rx_indicate(dev, rx_cb);
-    rt_device_open(dev, RT_DEVICE_FLAG_RDWR);
-    rt_device_control(dev, RT_SEN_CTRL_SET_MODE, (void *)RT_SEN_MODE_FIFO);
+    rt_device_open(dev, RT_SEN_FLAG_FIFO);
     rt_device_control(dev, RT_SEN_CTRL_SET_ODR, (void *)20);
-    rt_device_control(dev, RT_SEN_CTRL_GET_ID, &reg);
-    LOG_I("device id: 0x%x!", reg);
-
 }
 #ifdef FINSH_USING_MSH
-    MSH_CMD_EXPORT(sensor_fifo, sensor fifo sample function);
+MSH_CMD_EXPORT(sensor_fifo, sensor fifo sample function);
 #endif
 
 static void sensor_int(int argc, char **argv)
@@ -123,12 +129,11 @@ static void sensor_int(int argc, char **argv)
     static rt_thread_t tid1 = RT_NULL;
     rt_device_t dev = RT_NULL;
     rt_sensor_t sensor;
-    rt_uint8_t reg = 0xFF;
 
     dev = rt_device_find(argv[1]);
     if (dev == RT_NULL)
     {
-        LOG_I("Can't find device:%s", argv[1]);
+        LOG_E("Can't find device:%s", argv[1]);
         return;
     }
     sensor = (rt_sensor_t)dev;
@@ -146,12 +151,9 @@ static void sensor_int(int argc, char **argv)
     rt_device_set_rx_indicate(dev, rx_cb);
     rt_device_open(dev, RT_DEVICE_FLAG_INT_RX);
     rt_device_control(dev, RT_SEN_CTRL_SET_ODR, (void *)20);
-    rt_device_control(dev, RT_SEN_CTRL_GET_ID, &reg);
-    LOG_I("device id: 0x%x!", reg);
-
 }
 #ifdef FINSH_USING_MSH
-    MSH_CMD_EXPORT(sensor_int, sensor polling sample function);
+MSH_CMD_EXPORT(sensor_int, sensor polling sample function);
 #endif
 
 static void sensor_polling(int argc, char **argv)
@@ -159,21 +161,21 @@ static void sensor_polling(int argc, char **argv)
     uint16_t num = 10;
     rt_device_t dev = RT_NULL;
     rt_sensor_t sensor;
-    rt_uint8_t reg = 0xFF;
     struct rt_sensor_data data;
     rt_size_t res;
 
     dev = rt_device_find(argv[1]);
     if (dev == RT_NULL)
     {
-        LOG_I("Can't find device:%s", argv[1]);
+        LOG_E("Can't find device:%s", argv[1]);
         return;
     }
+    if (argc > 2)
+        num = atoi(argv[2]);
+
     sensor = (rt_sensor_t)dev;
     /* polling */
     rt_device_open(dev, RT_DEVICE_FLAG_RDWR);
-    rt_device_control(dev, RT_SEN_CTRL_GET_ID, &reg);
-    LOG_I("device id: 0x%x!", reg);
     rt_device_control(dev, RT_SEN_CTRL_SET_ODR, (void *)100);
 
     while (num --)
@@ -181,7 +183,7 @@ static void sensor_polling(int argc, char **argv)
         res = rt_device_read(dev, 0, &data, 1);
         if (res != 1)
         {
-            LOG_I("read data failed!size is %d", res);
+            LOG_E("read data failed!size is %d", res);
         }
         else
         {
@@ -192,7 +194,7 @@ static void sensor_polling(int argc, char **argv)
     rt_device_close(dev);
 }
 #ifdef FINSH_USING_MSH
-    MSH_CMD_EXPORT(sensor_polling, sensor polling sample function);
+MSH_CMD_EXPORT(sensor_polling, sensor polling sample function);
 #endif
 
 static void sensor(int argc, char **argv)
@@ -205,18 +207,17 @@ static void sensor(int argc, char **argv)
     /* If the number of arguments less than 2 */
     if (argc < 2)
     {
-        LOG_I("");
-        LOG_I("sensor  [OPTION] [PARAM]");
-        LOG_I("         probe <dev_name>      Probe sensor by given name");
-        LOG_I("         info                  Get sensor info");
-        LOG_I("         sr <var>              Set range to var");
-        LOG_I("         sm <var>              Set work mode to var");
-        LOG_I("         sp <var>              Set power mode to var");
-        LOG_I("         sodr <var>            Set output date rate to var");
-        LOG_I("         sleep <var>           Set sleep status");
-        LOG_I("                               var = 0 means disable, = 1 means enable");
-        LOG_I("         read [num]            read [num] times mpu6xxx");
-        LOG_I("                               num default 5");
+        rt_kprintf("\n");
+        rt_kprintf("sensor  [OPTION] [PARAM]\n");
+        rt_kprintf("         probe <dev_name>      Probe sensor by given name\n");
+        rt_kprintf("         info                  Get sensor info\n");
+        rt_kprintf("         sr <var>              Set range to var\n");
+        rt_kprintf("         sm <var>              Set work mode to var\n");
+        rt_kprintf("         sp <var>              Set power mode to var\n");
+        rt_kprintf("         sodr <var>            Set output date rate to var\n");
+        rt_kprintf("                               var = 0 means disable, = 1 means enable\n");
+        rt_kprintf("         read [num]            read [num] times mpu6xxx\n");
+        rt_kprintf("                               num default 5\n");
         return ;
     }
     else if (!strcmp(argv[1], "info"))
@@ -235,7 +236,7 @@ static void sensor(int argc, char **argv)
 
         if (dev == RT_NULL)
         {
-            LOG_I("Please probe mpu6xxx first!");
+            LOG_W("Please probe sensor device first!");
             return ;
         }
         if (argc == 3)
@@ -248,7 +249,7 @@ static void sensor(int argc, char **argv)
             res = rt_device_read(dev, 0, &data, 1);
             if (res != 1)
             {
-                LOG_I("read data failed!size is %d", res);
+                LOG_E("read data failed!size is %d", res);
             }
             else
             {
@@ -270,7 +271,7 @@ static void sensor(int argc, char **argv)
             dev = rt_device_find(argv[2]);
             if (dev == RT_NULL)
             {
-                LOG_I("Can't find device:%s", argv[1]);
+                LOG_E("Can't find device:%s", argv[1]);
                 return;
             }
             sensor = (rt_sensor_t)dev;
@@ -281,7 +282,7 @@ static void sensor(int argc, char **argv)
         }
         else if (dev == RT_NULL)
         {
-            LOG_I("Please probe sensor first!");
+            LOG_W("Please probe sensor first!");
             return ;
         }
         else if (!strcmp(argv[1], "sr"))
@@ -302,14 +303,14 @@ static void sensor(int argc, char **argv)
         }
         else
         {
-            LOG_I("Unknown command, please enter 'mpu6xxx' get help information!");
+            LOG_W("Unknown command, please enter 'sensor' get help information!");
         }
     }
     else
     {
-        LOG_I("Unknown command, please enter 'mpu6xxx' get help information!");
+        LOG_W("Unknown command, please enter 'sensor' get help information!");
     }
 }
 #ifdef FINSH_USING_MSH
-    MSH_CMD_EXPORT(sensor, sensor test function);
+MSH_CMD_EXPORT(sensor, sensor test function);
 #endif

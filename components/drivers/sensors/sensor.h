@@ -20,18 +20,7 @@
 #define RT_SEN_CLASS_HR                (9)  /* Heart Rate        */
 #define RT_SEN_CLASS_TVOC              (10) /* TVOC Level        */
 #define RT_SEN_CLASS_NOISE             (11) /* Noise Loudness    */
-
-#define SEN_ACCE_NAME               "_acc"  /* Accelerometer     */
-#define SEN_GYRO_NAME               "_gyr"  /* Gyroscope         */
-#define SEN_MAG_NAME                "_mag"  /* Magnetometer      */
-#define SEN_TEMP_NAME               "_tem"  /* Temperature       */
-#define SEN_HUMI_NAME               "_hum"  /* Relative Humidity */
-#define SEN_BARO_NAME               "_ba"   /* Barometer         */
-#define SEN_LIGHT_NAME              "_li"   /* Ambient light     */
-#define SEN_PROXIMITY_NAME          "_pr"   /* Proximity         */
-#define SEN_HR_NAME                 "_hr"   /* Heart Rate        */
-#define SEN_TVOC_NAME               "_tv"   /* TVOC Level        */
-#define SEN_NOISE_NAME              "_noi"  /* Noise Loudness    */
+#define RT_SEN_CLASS_STEP              (12) /* Step sensor       */
 
 /* Sensor vendor types */           
 
@@ -44,15 +33,16 @@
 /* Sensor unit types */                
 
 #define  RT_SEN_UNIT_NONE              (0)
-#define  RT_SEN_UNIT_MG                (1)  /* Accelerometer     unit: mG         */
-#define  RT_SEN_UNIT_UDPS              (2)  /* Gyroscope         unit: udps       */
-#define  RT_SEN_UNIT_MGAUSS            (3)  /* Magnetometer      unit: mGauss     */
-#define  RT_SEN_UNIT_LUX               (4)  /* Ambient light     unit: lux        */
-#define  RT_SEN_UNIT_CM                (5)  /* Distance          unit: cm         */
-#define  RT_SEN_UNIT_PA                (6)  /* Barometer         unit: pa         */
-#define  RT_SEN_UNIT_PERMILLAGE        (7)  /* Relative Humidity unit: permillage */
-#define  RT_SEN_UNIT_DCELSIUS          (8)  /* Temperature       unit: dCelsius   */
-#define  RT_SEN_UNIT_HZ                (9)  /* Frequency         unit: HZ         */
+#define  RT_SEN_UNIT_MG                (1)  /* Accelerometer           unit: mG         */
+#define  RT_SEN_UNIT_MDPS              (2)  /* Gyroscope               unit: mdps       */
+#define  RT_SEN_UNIT_MGAUSS            (3)  /* Magnetometer            unit: mGauss     */
+#define  RT_SEN_UNIT_LUX               (4)  /* Ambient light           unit: lux        */
+#define  RT_SEN_UNIT_CM                (5)  /* Distance                unit: cm         */
+#define  RT_SEN_UNIT_PA                (6)  /* Barometer               unit: pa         */
+#define  RT_SEN_UNIT_PERMILLAGE        (7)  /* Relative Humidity       unit: permillage */
+#define  RT_SEN_UNIT_DCELSIUS          (8)  /* Temperature             unit: dCelsius   */
+#define  RT_SEN_UNIT_HZ                (9)  /* Frequency               unit: HZ         */
+#define  RT_SEN_UNIT_ONE               (10) /* Dimensionless quantity  unit: 1          */
 
 /* Sensor communication interface types */
 
@@ -119,12 +109,12 @@ struct rt_sensor_intf
 
 struct rt_sensor_config
 {
-    struct rt_sensor_intf        intf;    
-    struct rt_device_pin_mode    irq_pin;    /* The purpose of this pin is to notification read data */    
-    rt_uint8_t                   mode;
-    rt_uint8_t                   power;
-    rt_uint16_t                  odr;
-    rt_int32_t                   range;
+    struct rt_sensor_intf        intf;      /* sensor interface config */
+    struct rt_device_pin_mode    irq_pin;   /* Interrupt pin, The purpose of this pin is to notification read data */
+    rt_uint8_t                   mode;      /* sensor work mode */
+    rt_uint8_t                   power;     /* sensor power mode */
+    rt_uint16_t                  odr;       /* sensor out data rate */
+    rt_int32_t                   range;     /* sensor range of measurement */
 //    rt_uint8_t                   fifo_max;
 };
 
@@ -132,24 +122,24 @@ struct rt_sensor_device
 {
     struct rt_device             parent;    /* The standard device */
                                 
-    struct rt_sensor_info        info;
-    struct rt_sensor_config      config;
+    struct rt_sensor_info        info;      /* The sensor info data */
+    struct rt_sensor_config      config;    /* The sensor config data */
 
-    void                        *data_buf;
-    rt_uint8_t                   data_len;
+    void                        *data_buf;  /* The buf of the data received */
+    rt_size_t                    data_len;  /* The size of the data received */
     
-    struct rt_sensor_ops        *ops;
+    struct rt_sensor_ops        *ops;       /* The sensor ops */
                                 
-    struct rt_sensor_module     *module;
+    struct rt_sensor_module     *module;    /* The sensor module */
 };
 typedef struct rt_sensor_device *rt_sensor_t;
 
 struct rt_sensor_module
 {
-    rt_mutex_t                  lock;
+    rt_mutex_t                  lock;                   /* The module lock */
 
-    rt_sensor_t                 sen[RT_SEN_MODULE_MAX];
-    rt_uint8_t                  sen_num;
+    rt_sensor_t                 sen[RT_SEN_MODULE_MAX]; /* The module contains a list of sensors */
+    rt_uint8_t                  sen_num;                /* Number of sensors contained in the module */
 };
 
 /* 3-axis Data Type */
@@ -167,7 +157,7 @@ struct rt_sensor_data
     union
     {
         struct sensor_3_axis acce;          /* Accelerometer.       unit: mG          */
-        struct sensor_3_axis gyro;          /* Gyroscope.           unit: udps        */
+        struct sensor_3_axis gyro;          /* Gyroscope.           unit: mdps        */
         struct sensor_3_axis mag;           /* Magnetometer.        unit: mGauss      */
         rt_int32_t           temp;          /* Temperature.         unit: dCelsius    */
         rt_int32_t           humi;          /* Relative humidity.   unit: permillage  */
@@ -177,6 +167,7 @@ struct rt_sensor_data
         rt_int32_t           hr;            /* Heat rate.           unit: HZ          */
         rt_int32_t           tvoc;          /* TVOC.                unit: permillage  */
         rt_int32_t           noise;         /* Noise Loudness.      unit: HZ          */
+        rt_uint32_t          step;          /* Step sensor.         unit: 1           */
     }data;
 };
 
@@ -185,6 +176,7 @@ struct rt_sensor_ops
     rt_size_t (*fetch_data)(struct rt_sensor_device *sensor, void *buf, rt_size_t len);
     rt_err_t (*control)(struct rt_sensor_device *sensor, int cmd, void *arg);
 };
+
 int rt_hw_sensor_register(rt_sensor_t sensor,
                            const char              *name,
                            rt_uint32_t              flag,
