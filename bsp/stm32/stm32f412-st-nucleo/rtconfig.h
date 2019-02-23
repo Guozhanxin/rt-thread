@@ -37,8 +37,8 @@
 #define RT_USING_DEVICE
 #define RT_USING_CONSOLE
 #define RT_CONSOLEBUF_SIZE 128
-#define RT_CONSOLE_DEVICE_NAME "uart2"
-#define RT_VER_NUM 0x40000
+#define RT_CONSOLE_DEVICE_NAME "uart3"
+#define RT_VER_NUM 0x40001
 #define ARCH_ARM
 #define ARCH_ARM_CORTEX_M
 #define ARCH_ARM_CORTEX_M4
@@ -77,6 +77,7 @@
 #define RT_USING_DEVICE_IPC
 #define RT_PIPE_BUFSZ 512
 #define RT_USING_SERIAL
+#define RT_SERIAL_RB_BUFSZ 64
 #define RT_USING_PIN
 
 /* Using WiFi */
@@ -144,26 +145,36 @@
 
 /* peripheral libraries and drivers */
 
+/* sensors drivers */
+
 
 /* miscellaneous packages */
 
 
 /* samples: kernel and components samples */
 
+
+/* Privated Packages of RealThread */
+
+
+/* Network Utilities */
+
 #define SOC_FAMILY_STM32
 #define SOC_SERIES_STM32F4
 
 /* Hardware Drivers Config */
 
-#define SOC_STM32F411RE
+#define SOC_STM32F412ZG
 
 /* Onboard Peripheral Drivers */
+
+#define BSP_USING_STLINK_TO_USART
 
 /* On-chip Peripheral Drivers */
 
 #define BSP_USING_GPIO
 #define BSP_USING_UART
-#define BSP_USING_UART2
+#define BSP_USING_UART3
 
 /* Board extended module Drivers */
 

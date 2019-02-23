@@ -1,11 +1,17 @@
 menu "Hardware Drivers Config"
 
-config SOC_STM32F411RE
+config SOC_STM32F412ZG
     bool
     select SOC_SERIES_STM32F4
     default y
 
 menu "Onboard Peripheral Drivers"
+
+    config BSP_USING_STLINK_TO_USART
+        bool "Enable STLINK TO USART (uart3)"
+        select BSP_USING_UART
+        select BSP_USING_UART3
+        default y
 
 endmenu
 
@@ -24,10 +30,17 @@ menu "On-chip Peripheral Drivers"
             config BSP_USING_UART2
                 bool "Enable UART2"
                 default y
-
             config BSP_UART2_RX_USING_DMA
                 bool "Enable UART2 RX DMA"
                 depends on BSP_USING_UART2 && RT_SERIAL_USING_DMA
+                default n
+
+            config BSP_USING_UART3
+                bool "Enable UART3"
+                default y
+            config BSP_UART3_RX_USING_DMA
+                bool "Enable UART3 RX DMA"
+                depends on BSP_USING_UART3 && RT_SERIAL_USING_DMA
                 default n
         endif
 
