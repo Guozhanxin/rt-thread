@@ -13,6 +13,12 @@ menu "Onboard Peripheral Drivers"
         select BSP_USING_LPUART1
         default y
 
+    config BSP_USING_SPI_LCD
+        bool "Enable SPI LCD (not support)"
+        select BSP_USING_SPI
+        select BSP_USING_SPI1
+        default n
+
     config BSP_USING_SDCARD
         bool "Enable SDCARD (sdio)"
         select BSP_USING_SDIO
@@ -20,6 +26,13 @@ menu "Onboard Peripheral Drivers"
         select RT_USING_DFS_ELMFAT
         default n
 
+    config BSP_USING_LSM6DSL
+        bool "Enable LSM6DSL (i2c4)"
+        select RT_USING_SENSOR
+        select BSP_USING_I2C
+        select BSP_USING_I2C4
+        select PKG_USING_LSM6DSL
+        default n
 endmenu
 
 menu "On-chip Peripheral Drivers"
