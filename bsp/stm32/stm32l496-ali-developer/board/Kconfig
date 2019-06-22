@@ -35,6 +35,14 @@ menu "Onboard Peripheral Drivers"
         select PKG_USING_LSM6DSL_LATEST_VERSION
         default n
 
+    config BSP_USING_WIFI
+        bool "Enable WIFI MW31 (uart3)"
+        select BSP_USING_UART
+        select BSP_USING_UART3
+        select PKG_USING_AT_DEVICE
+        select AT_DEVICE_USING_MW31
+        default n
+
 endmenu
 
 menu "On-chip Peripheral Drivers"
