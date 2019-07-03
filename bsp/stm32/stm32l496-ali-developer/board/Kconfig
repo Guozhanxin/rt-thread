@@ -13,11 +13,34 @@ menu "Onboard Peripheral Drivers"
         select BSP_USING_LPUART1
         default y
 
+    config BSP_USING_SPI_LCD
+        bool "Enable SPI LCD (spi1)"
+        select BSP_USING_SPI
+        select BSP_USING_SPI1
+        default n
+
     config BSP_USING_SDCARD
         bool "Enable SDCARD (sdio)"
         select BSP_USING_SDIO
         select RT_USING_DFS
         select RT_USING_DFS_ELMFAT
+        default n
+
+    config BSP_USING_SENSOR_6AXIS
+        bool "Enable 6-axis sensor (i2c4)"
+        select BSP_USING_I2C
+        select BSP_USING_I2C4
+        select PKG_USING_SENSORS_DRIVERS
+        select PKG_USING_LSM6DSL
+        select PKG_USING_LSM6DSL_LATEST_VERSION
+        default n
+
+    config BSP_USING_WIFI
+        bool "Enable WIFI MW31 (uart3)"
+        select BSP_USING_UART
+        select BSP_USING_UART3
+        select PKG_USING_AT_DEVICE
+        select AT_DEVICE_USING_MW31
         default n
 
 endmenu
@@ -217,6 +240,11 @@ menu "On-chip Peripheral Drivers"
     config BSP_USING_WDT
         bool "Enable Watchdog Timer"
         select RT_USING_WDT
+        default n
+
+    config BSP_USING_USBD_FS
+        bool "Enable OTGFS as USB device"
+        select RT_USING_USB_DEVICE
         default n
 
 endmenu
