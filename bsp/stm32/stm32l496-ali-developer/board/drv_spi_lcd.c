@@ -347,6 +347,21 @@ void lcd_draw_point(rt_uint16_t x, rt_uint16_t y)
 }
 
 /**
+ * display a point on the lcd using the given colour.
+ *
+ * @param   x       x position
+ * @param   y       y position
+ * @param   color   color of point
+ *
+ * @return  void
+ */
+void lcd_draw_point_color(rt_uint16_t x, rt_uint16_t y, rt_uint16_t color)
+{
+    lcd_address_set(x, y, x, y);
+    lcd_write_half_word(color);
+}
+
+/**
  * full color on the lcd.
  *
  * @param   x_start     start of x position
@@ -963,7 +978,7 @@ rt_err_t lcd_show_qrcode(rt_uint16_t x, rt_uint16_t y, rt_uint8_t version, rt_ui
     }
     else
     {
-        LOG_E("QRCODE(%s) generate falied(%d)\n", qrstr, result);
+        LOG_E("QRCODE(%s) generate falied(%d)\n", data, result);
         result = -RT_ENOMEM;
         goto __exit;
     }
