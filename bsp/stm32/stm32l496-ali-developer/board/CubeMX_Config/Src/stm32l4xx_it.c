@@ -71,6 +71,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern SAI_HandleTypeDef hsai_BlockA2;
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 /* USER CODE BEGIN EV */
 
@@ -224,6 +225,20 @@ void OTG_FS_IRQHandler(void)
   /* USER CODE BEGIN OTG_FS_IRQn 1 */
 
   /* USER CODE END OTG_FS_IRQn 1 */
+}
+
+/**
+  * @brief This function handles SAI2 global interrupt.
+  */
+void SAI2_IRQHandler(void)
+{
+  /* USER CODE BEGIN SAI2_IRQn 0 */
+
+  /* USER CODE END SAI2_IRQn 0 */
+  HAL_SAI_IRQHandler(&hsai_BlockA2);
+  /* USER CODE BEGIN SAI2_IRQn 1 */
+
+  /* USER CODE END SAI2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

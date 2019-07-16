@@ -72,6 +72,8 @@ UART_HandleTypeDef huart3;
 
 RTC_HandleTypeDef hrtc;
 
+SAI_HandleTypeDef hsai_BlockA2;
+
 SD_HandleTypeDef hsd1;
 
 SPI_HandleTypeDef hspi1;
@@ -105,6 +107,7 @@ static void MX_TIM3_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
+static void MX_SAI2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -157,6 +160,7 @@ int main(void)
   MX_ADC1_Init();
   MX_SPI2_Init();
   MX_USB_OTG_FS_PCD_Init();
+  MX_SAI2_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -188,17 +192,15 @@ void SystemClock_Config(void)
   __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
   /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_LSE
-                              |RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE
+                              |RCC_OSCILLATORTYPE_LSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;
-  RCC_OscInitStruct.MSIState = RCC_MSI_ON;
-  RCC_OscInitStruct.MSICalibrationValue = 0;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_MSI;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 1;
-  RCC_OscInitStruct.PLL.PLLN = 40;
+  RCC_OscInitStruct.PLL.PLLN = 20;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -221,22 +223,24 @@ void SystemClock_Config(void)
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_USART2
                               |RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_LPUART1
-                              |RCC_PERIPHCLK_USB|RCC_PERIPHCLK_SDMMC1
-                              |RCC_PERIPHCLK_ADC;
+                              |RCC_PERIPHCLK_SAI2|RCC_PERIPHCLK_USB
+                              |RCC_PERIPHCLK_SDMMC1|RCC_PERIPHCLK_ADC;
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
   PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
   PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
+  PeriphClkInit.Sai2ClockSelection = RCC_SAI2CLKSOURCE_PLLSAI1;
   PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLLSAI1;
   PeriphClkInit.Sdmmc1ClockSelection = RCC_SDMMC1CLKSOURCE_PLLSAI1;
-  PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_MSI;
+  PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_HSE;
   PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
-  PeriphClkInit.PLLSAI1.PLLSAI1N = 24;
+  PeriphClkInit.PLLSAI1.PLLSAI1N = 12;
   PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV2;
   PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV2;
   PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
-  PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_48M2CLK|RCC_PLLSAI1_ADC1CLK;
+  PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_SAI1CLK|RCC_PLLSAI1_48M2CLK
+                              |RCC_PLLSAI1_ADC1CLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -247,9 +251,6 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Enable MSI Auto calibration 
-  */
-  HAL_RCCEx_EnableMSIPLLMode();
 }
 
 /**
@@ -481,6 +482,55 @@ static void MX_RTC_Init(void)
   /* USER CODE BEGIN RTC_Init 2 */
 
   /* USER CODE END RTC_Init 2 */
+
+}
+
+/**
+  * @brief SAI2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SAI2_Init(void)
+{
+
+  /* USER CODE BEGIN SAI2_Init 0 */
+
+  /* USER CODE END SAI2_Init 0 */
+
+  /* USER CODE BEGIN SAI2_Init 1 */
+
+  /* USER CODE END SAI2_Init 1 */
+  hsai_BlockA2.Instance = SAI2_Block_A;
+  hsai_BlockA2.Init.Protocol = SAI_FREE_PROTOCOL;
+  hsai_BlockA2.Init.AudioMode = SAI_MODEMASTER_TX;
+  hsai_BlockA2.Init.DataSize = SAI_DATASIZE_16;
+  hsai_BlockA2.Init.FirstBit = SAI_FIRSTBIT_MSB;
+  hsai_BlockA2.Init.ClockStrobing = SAI_CLOCKSTROBING_FALLINGEDGE;
+  hsai_BlockA2.Init.Synchro = SAI_ASYNCHRONOUS;
+  hsai_BlockA2.Init.OutputDrive = SAI_OUTPUTDRIVE_DISABLE;
+  hsai_BlockA2.Init.NoDivider = SAI_MASTERDIVIDER_ENABLE;
+  hsai_BlockA2.Init.FIFOThreshold = SAI_FIFOTHRESHOLD_1QF;
+  hsai_BlockA2.Init.AudioFrequency = SAI_AUDIO_FREQUENCY_16K;
+  hsai_BlockA2.Init.SynchroExt = SAI_SYNCEXT_DISABLE;
+  hsai_BlockA2.Init.MonoStereoMode = SAI_STEREOMODE;
+  hsai_BlockA2.Init.CompandingMode = SAI_NOCOMPANDING;
+  hsai_BlockA2.Init.TriState = SAI_OUTPUT_NOTRELEASED;
+  hsai_BlockA2.FrameInit.FrameLength = 16;
+  hsai_BlockA2.FrameInit.ActiveFrameLength = 1;
+  hsai_BlockA2.FrameInit.FSDefinition = SAI_FS_STARTFRAME;
+  hsai_BlockA2.FrameInit.FSPolarity = SAI_FS_ACTIVE_LOW;
+  hsai_BlockA2.FrameInit.FSOffset = SAI_FS_FIRSTBIT;
+  hsai_BlockA2.SlotInit.FirstBitOffset = 0;
+  hsai_BlockA2.SlotInit.SlotSize = SAI_SLOTSIZE_DATASIZE;
+  hsai_BlockA2.SlotInit.SlotNumber = 1;
+  hsai_BlockA2.SlotInit.SlotActive = 0x00000000;
+  if (HAL_SAI_Init(&hsai_BlockA2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SAI2_Init 2 */
+
+  /* USER CODE END SAI2_Init 2 */
 
 }
 

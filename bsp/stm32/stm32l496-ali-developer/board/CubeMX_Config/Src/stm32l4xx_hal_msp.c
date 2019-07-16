@@ -823,6 +823,85 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef* hpcd)
 
 }
 
+static uint32_t SAI2_client =0;
+
+void HAL_SAI_MspInit(SAI_HandleTypeDef* hsai)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct;
+/* SAI2 */
+    if(hsai->Instance==SAI2_Block_A)
+    {
+    /* Peripheral clock enable */
+    if (SAI2_client == 0)
+    {
+       __HAL_RCC_SAI2_CLK_ENABLE();
+
+    /* Peripheral interrupt init*/
+    HAL_NVIC_SetPriority(SAI2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(SAI2_IRQn);
+    }
+    SAI2_client ++;
+    
+    /**SAI2_A_Block_A GPIO Configuration    
+    PB12     ------> SAI2_FS_A
+    PB15     ------> SAI2_SD_A
+    PD10     ------> SAI2_SCK_A
+    PC6     ------> SAI2_MCLK_A 
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_15;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF13_SAI2;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_10;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF13_SAI2;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_6;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF13_SAI2;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    }
+}
+
+void HAL_SAI_MspDeInit(SAI_HandleTypeDef* hsai)
+{
+
+/* SAI2 */
+    if(hsai->Instance==SAI2_Block_A)
+    {
+    SAI2_client --;
+    if (SAI2_client == 0)
+      {
+      /* Peripheral clock disable */ 
+       __HAL_RCC_SAI2_CLK_DISABLE();
+      HAL_NVIC_DisableIRQ(SAI2_IRQn);
+      }
+    
+    /**SAI2_A_Block_A GPIO Configuration    
+    PB12     ------> SAI2_FS_A
+    PB15     ------> SAI2_SD_A
+    PD10     ------> SAI2_SCK_A
+    PC6     ------> SAI2_MCLK_A 
+    */
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_12|GPIO_PIN_15);
+
+    HAL_GPIO_DeInit(GPIOD, GPIO_PIN_10);
+
+    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_6);
+
+    }
+}
+
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
