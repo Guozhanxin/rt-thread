@@ -91,6 +91,9 @@ if GetDepend(['BSP_USING_PULSE_ENCODER']):
 if GetDepend(['BSP_USING_USBH']):
     src += ['drv_usbh.c']
 
+if GetDepend(['RT_USING_MTD_NAND']):
+    src += ['drv_nand.c']
+
 src += ['drv_common.c']
 
 path =  [cwd]
