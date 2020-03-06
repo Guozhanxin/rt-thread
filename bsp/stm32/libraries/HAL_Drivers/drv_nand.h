@@ -66,7 +66,7 @@ extern "C" {
  */
 #define NAND_FLASH_INFO_TABLE                            \
 {                                                        \
-    {"MT29F4G08", MT29F4G08ABADA, 2048, 64, 2, 64},      \
+    {"MT29F4G08", MT29F4G08ABADA, 2048, 64, 2, 64, 64},  \
 }
 #endif
 
