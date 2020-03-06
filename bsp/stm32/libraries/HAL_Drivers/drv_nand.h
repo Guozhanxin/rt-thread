@@ -60,6 +60,27 @@ extern "C" {
 #define MT29F4G08ABADA          0XDC909556  //MT29F4G08ABADA
 #define MT29F16G08ABABA         0X48002689  //MT29F16G08ABABA
 
+#ifndef NAND_FLASH_INFO_TABLE
+/*
+ * | name | id | type_id | capacity_id | capacity | write_mode | erase_gran | erase_gran_cmd |
+ */
+#define NAND_FLASH_INFO_TABLE                            \
+{                                                        \
+    {"MT29F4G08", MT29F4G08ABADA, 2048, 64, 2, 64},      \
+}
+#endif
+
+struct nand_info
+{
+    char *name;                     /* NAND FLASH Name */
+    uint32_t id;             		/* NAND FLASH ID */
+    rt_uint16_t page_size;          /* The Page size in the flash */
+    rt_uint16_t oob_size;           /* Out of bank size */
+    rt_uint16_t plane_num;          /* the number of plane in the NAND Flash */
+    rt_uint16_t block_total;
+    rt_uint32_t pages_per_block;    /* The number of page a block */
+};
+
 int rt_hw_mtd_nand_init(void);
 
 /* stm32 config class */

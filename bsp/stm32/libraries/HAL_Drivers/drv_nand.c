@@ -17,14 +17,10 @@
 //    #include <nftl.h>
 //#endif
 
-//#define DRV_DEBUG
+#define DRV_DEBUG
 #define LOG_TAG             "drv.nand"
 #include <drv_log.h>
 
-/* nandflash confg */
-#define PAGES_PER_BLOCK         64
-#define PAGE_DATA_SIZE          2048
-#define PAGE_OOB_SIZE           64
 #define ECC_SIZE                4
 
 #ifndef STM32_NAND_BANK
@@ -51,6 +47,8 @@ static struct stm32_nand_config nand_config[] =
 };
 
 static struct stm32_nand nand_obj[sizeof(nand_config) / sizeof(nand_config[0])] = {0};
+
+const struct nand_info nand_info_list[] = NAND_FLASH_INFO_TABLE;
 
 static rt_uint8_t stm32_nand_wait_rb(volatile rt_uint8_t rb)
 {
@@ -155,6 +153,49 @@ static int stm32_hw_nand_init(struct stm32_nand *device)
 
     stm32_nand_mode_set(4);                    //设置为MODE4,高速模式
     return 0;
+}
+
+static rt_err_t stm32_mtd_nand_getinfo(struct stm32_nand *nand)
+{
+    rt_uint32_t id;
+    int i;
+
+    RT_ASSERT(nand != RT_NULL);
+
+    STM32_NAND_SET_CMD(NAND_READID); //发送读取ID命令
+    STM32_NAND_SET_ADD(0X00);
+    STM32_NAND_GET_DAT(nand->id[0]);//ID一共有5个字节
+    STM32_NAND_GET_DAT(nand->id[1]);
+    STM32_NAND_GET_DAT(nand->id[2]);
+    STM32_NAND_GET_DAT(nand->id[3]);
+    STM32_NAND_GET_DAT(nand->id[4]);
+
+    //镁光的NAND FLASH的ID一共5个字节，但是为了方便我们只取4个字节组成一个32位的ID值
+    //根据NAND FLASH的数据手册，只要是镁光的NAND FLASH，那么一个字节ID的第一个字节都是0X2C
+    //所以我们就可以抛弃这个0X2C，只取后面四字节的ID值。
+    id = ((rt_uint32_t)nand->id[1]) << 24 | ((rt_uint32_t)nand->id[2]) << 16 | ((rt_uint32_t)nand->id[3]) << 8 | nand->id[4];
+
+    for(i = 0; i < sizeof(nand_info_list)/sizeof(struct nand_info); i++)
+    {
+        if (nand_info_list[i].id == id)
+        {
+            nand_obj[i].mtd_nand.page_size       = nand_info_list[i].page_size;
+            nand_obj[i].mtd_nand.pages_per_block = nand_info_list[i].pages_per_block;
+            nand_obj[i].mtd_nand.plane_num       = nand_info_list[i].plane_num;
+            nand_obj[i].mtd_nand.oob_size        = nand_info_list[i].oob_size;
+            nand_obj[i].mtd_nand.oob_free        = nand_info_list[i].oob_size - ((nand_info_list[i].page_size) * 3 / 256);
+            nand_obj[i].mtd_nand.block_start     = 0;
+            nand_obj[i].mtd_nand.block_end       = nand_info_list[i].block_total;
+            nand_obj[i].mtd_nand.block_total     = nand_info_list[i].block_total;
+            LOG_D("NAND ID: 0x%08X", id);
+            return RT_EOK;
+        }
+    }
+    if (i == sizeof(nand_info_list)/sizeof(struct nand_info))
+    {
+        return -RT_ERROR;
+    }
+    return RT_EOK;
 }
 
 static rt_err_t stm32_mtd_nand_readid(struct rt_mtd_nand_device *device)
@@ -294,7 +335,7 @@ static rt_err_t stm32_mtd_nand_readpage(struct rt_mtd_nand_device *device,
         }
         gecc = FMC_NAND_GetECC(nand->handle.Instance, (uint32_t *)&gecc, STM32_NAND_BANK, 10);
 
-        if (data_len == PAGE_DATA_SIZE)
+        if (data_len == device->page_size)
         {
             for (index = 0; index < ECC_SIZE; index ++)
             {
@@ -325,8 +366,8 @@ static rt_err_t stm32_mtd_nand_readpage(struct rt_mtd_nand_device *device,
     if (spare && spare_len)
     {
         STM32_NAND_SET_CMD(NAND_AREA_A); //发送地址
-        STM32_NAND_SET_ADD((rt_uint8_t)(PAGE_DATA_SIZE & 0xFF));
-        STM32_NAND_SET_ADD((rt_uint8_t)(PAGE_DATA_SIZE >> 8));
+        STM32_NAND_SET_ADD((rt_uint8_t)(device->page_size & 0xFF));
+        STM32_NAND_SET_ADD((rt_uint8_t)(device->page_size >> 8));
         STM32_NAND_SET_ADD((rt_uint8_t)(page & 0xFF));
         STM32_NAND_SET_ADD((rt_uint8_t)(page >> 8));
         STM32_NAND_SET_ADD((rt_uint8_t)(page >> 16));
@@ -395,7 +436,7 @@ static rt_err_t stm32_mtd_nand_writepage(struct rt_mtd_nand_device *device,
 
         FMC_NAND_ECC_Disable(nand->handle.Instance, STM32_NAND_BANK);
 
-        if (data_len == PAGE_DATA_SIZE)
+        if (data_len == device->page_size)
         {
             STM32_NAND_SET_DAT((uint8_t)gecc);
             STM32_NAND_SET_DAT((uint8_t)(gecc >> 8));
@@ -423,8 +464,8 @@ static rt_err_t stm32_mtd_nand_writepage(struct rt_mtd_nand_device *device,
     if (spare && spare_len)
     {
         STM32_NAND_SET_CMD(NAND_WRITE0); //发送地址
-        STM32_NAND_SET_ADD((rt_uint8_t)(PAGE_DATA_SIZE & 0xFF));
-        STM32_NAND_SET_ADD((rt_uint8_t)(PAGE_DATA_SIZE >> 8));
+        STM32_NAND_SET_ADD((rt_uint8_t)(device->page_size & 0xFF));
+        STM32_NAND_SET_ADD((rt_uint8_t)(device->page_size >> 8));
         STM32_NAND_SET_ADD((rt_uint8_t)(page & 0xFF));
         STM32_NAND_SET_ADD((rt_uint8_t)(page >> 8));
         STM32_NAND_SET_ADD((rt_uint8_t)(page >> 16));
@@ -559,16 +600,7 @@ int rt_hw_mtd_nand_init(void)
     for (int i = 0; i < obj_num; i++)
     {
         nand_obj[i].config = &nand_config[i];
-        nand_obj[i].mtd_nand.page_size       = PAGE_DATA_SIZE;
-        nand_obj[i].mtd_nand.pages_per_block = PAGES_PER_BLOCK;
-        nand_obj[i].mtd_nand.plane_num       = 2;
-        nand_obj[i].mtd_nand.oob_size        = PAGE_OOB_SIZE;
-        nand_obj[i].mtd_nand.oob_free        = PAGE_OOB_SIZE - ((PAGE_DATA_SIZE) * 3 / 256);
-        nand_obj[i].mtd_nand.block_start     = 0;
-        nand_obj[i].mtd_nand.block_end       = 4095;
-
-        nand_obj[i].mtd_nand.block_total     = nand_obj[i].mtd_nand.block_end - nand_obj[i].mtd_nand.block_start;
-        nand_obj[i].mtd_nand.ops             = &ops;
+        nand_obj[i].mtd_nand.ops = &ops;
 
         /* nand init */
         if (stm32_hw_nand_init(&nand_obj[i]) != RT_EOK)
@@ -582,10 +614,13 @@ int rt_hw_mtd_nand_init(void)
             LOG_D("%s init success", nand_obj[i].config->name);
 
             rt_mutex_init(&nand_obj[i].lock, "nand", RT_IPC_FLAG_FIFO);
-
-            /* register mtd_nand device */
-            result = rt_mtd_nand_register_device(nand_obj[i].config->name, &nand_obj[i].mtd_nand);
-            RT_ASSERT(result == RT_EOK);
+            
+            if (stm32_mtd_nand_getinfo(&nand_obj[i]) == RT_EOK)
+            {
+                /* register mtd_nand device */
+                result = rt_mtd_nand_register_device(nand_obj[i].config->name, &nand_obj[i].mtd_nand);
+                RT_ASSERT(result == RT_EOK);
+            }
         }
     }
 
