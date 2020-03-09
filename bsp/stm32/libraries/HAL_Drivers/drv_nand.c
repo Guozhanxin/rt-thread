@@ -13,14 +13,15 @@
 #include "drv_nand.h"
 #include "drv_config.h"
 
-#define RT_USING_NFTL
-#ifdef RT_USING_NFTL
-  #include <nftl.h>
-#endif
+//#ifdef RT_USING_NFTL
+//    #include <nftl.h>
+//#endif
 
 #define DRV_DEBUG
 #define LOG_TAG             "drv.nand"
 #include <drv_log.h>
+
+#define ECC_SIZE                4
 
 #ifndef STM32_NAND_BANK
     #define STM32_NAND_BANK FMC_NAND_BANK3
@@ -57,11 +58,11 @@ static rt_uint8_t stm32_nand_wait_rb(volatile rt_uint8_t rb)
         time++;
         if (NAND_RB == rb)
         {
-            LOG_D("time:%d/%d  R/B:%d\n", time, 10000, rb);
+//            LOG_D("time:%d/%d  R/B:%d\n", time, 10000, rb);
             return 0;
         }
     }
-    LOG_D("wait rb timeout\n");
+//    LOG_D("wait rb timeout\n");
     return 1;
 }
 
@@ -182,26 +183,16 @@ static rt_err_t stm32_mtd_nand_getinfo(struct stm32_nand *nand)
             nand_obj[i].mtd_nand.pages_per_block = nand_info_list[i].pages_per_block;
             nand_obj[i].mtd_nand.plane_num       = nand_info_list[i].plane_num;
             nand_obj[i].mtd_nand.oob_size        = nand_info_list[i].oob_size;
-            nand_obj[i].mtd_nand.oob_free        = nand_info_list[i].oob_size;
+            nand_obj[i].mtd_nand.oob_free        = nand_info_list[i].oob_size - ((nand_info_list[i].page_size) * 3 / 256);
             nand_obj[i].mtd_nand.block_start     = 0;
             nand_obj[i].mtd_nand.block_end       = nand_info_list[i].block_total;
             nand_obj[i].mtd_nand.block_total     = nand_info_list[i].block_total;
-            LOG_D("nand_obj[i].mtd_nand.page_size       = %d", nand_obj[i].mtd_nand.page_size       );
-            LOG_D("nand_obj[i].mtd_nand.pages_per_block = %d", nand_obj[i].mtd_nand.pages_per_block );
-            LOG_D("nand_obj[i].mtd_nand.plane_num       = %d", nand_obj[i].mtd_nand.plane_num       );
-            LOG_D("nand_obj[i].mtd_nand.oob_size        = %d", nand_obj[i].mtd_nand.oob_size        );
-            LOG_D("nand_obj[i].mtd_nand.oob_free        = %d", nand_obj[i].mtd_nand.oob_free        );
-            LOG_D("nand_obj[i].mtd_nand.block_start     = %d", nand_obj[i].mtd_nand.block_start     );
-            LOG_D("nand_obj[i].mtd_nand.block_end       = %d", nand_obj[i].mtd_nand.block_end       );
-            LOG_D("nand_obj[i].mtd_nand.block_total     = %d", nand_obj[i].mtd_nand.block_total     );
-
-            LOG_I("\nFind NAND ID: 0x%08X\n", id);
+            LOG_D("NAND ID: 0x%08X", id);
             return RT_EOK;
         }
     }
     if (i == sizeof(nand_info_list)/sizeof(struct nand_info))
     {
-        LOG_E("\nNOT Find NAND\n");
         return -RT_ERROR;
     }
     return RT_EOK;
@@ -233,66 +224,66 @@ static rt_err_t stm32_mtd_nand_readid(struct rt_mtd_nand_device *device)
 
 }
 
-//static rt_err_t nand_datacorrect(uint32_t generatedEcc, uint32_t readEcc, uint8_t *data)
-//{
-//#define ECC_MASK28    0x0FFFFFFF          /* 28 valid ECC parity bits. */
-//#define ECC_MASK      0x05555555          /* 14 ECC parity bits.       */
+static rt_err_t nand_datacorrect(uint32_t generatedEcc, uint32_t readEcc, uint8_t *data)
+{
+#define ECC_MASK28    0x0FFFFFFF          /* 28 valid ECC parity bits. */
+#define ECC_MASK      0x05555555          /* 14 ECC parity bits.       */
 
-//    rt_uint32_t count, bitNum, byteAddr;
-//    rt_uint32_t mask;
-//    rt_uint32_t syndrome;
-//    rt_uint32_t eccP;                            /* 14 even ECC parity bits. */
-//    rt_uint32_t eccPn;                           /* 14 odd ECC parity bits.  */
+    rt_uint32_t count, bitNum, byteAddr;
+    rt_uint32_t mask;
+    rt_uint32_t syndrome;
+    rt_uint32_t eccP;                            /* 14 even ECC parity bits. */
+    rt_uint32_t eccPn;                           /* 14 odd ECC parity bits.  */
 
-//    syndrome = (generatedEcc ^ readEcc) & ECC_MASK28;
+    syndrome = (generatedEcc ^ readEcc) & ECC_MASK28;
 
-//    if (syndrome == 0)
-//        return (RT_MTD_EOK);                  /* No errors in data. */
+    if (syndrome == 0)
+        return (RT_MTD_EOK);                  /* No errors in data. */
 
-//    eccPn = syndrome & ECC_MASK;              /* Get 14 odd parity bits.  */
-//    eccP  = (syndrome >> 1) & ECC_MASK;       /* Get 14 even parity bits. */
+    eccPn = syndrome & ECC_MASK;              /* Get 14 odd parity bits.  */
+    eccP  = (syndrome >> 1) & ECC_MASK;       /* Get 14 even parity bits. */
 
-//    if ((eccPn ^ eccP) == ECC_MASK)           /* 1-bit correctable error ? */
-//    {
-//        bitNum = (eccP & 0x01) |
-//                 ((eccP >> 1) & 0x02) |
-//                 ((eccP >> 2) & 0x04);
-//        LOG_D("ECC bit %d\n", bitNum);
-//        byteAddr = ((eccP >> 6) & 0x001) |
-//                   ((eccP >> 7) & 0x002) |
-//                   ((eccP >> 8) & 0x004) |
-//                   ((eccP >> 9) & 0x008) |
-//                   ((eccP >> 10) & 0x010) |
-//                   ((eccP >> 11) & 0x020) |
-//                   ((eccP >> 12) & 0x040) |
-//                   ((eccP >> 13) & 0x080) |
-//                   ((eccP >> 14) & 0x100) |
-//                   ((eccP >> 15) & 0x200) |
-//                   ((eccP >> 16) & 0x400) ;
+    if ((eccPn ^ eccP) == ECC_MASK)           /* 1-bit correctable error ? */
+    {
+        bitNum = (eccP & 0x01) |
+                 ((eccP >> 1) & 0x02) |
+                 ((eccP >> 2) & 0x04);
+        LOG_D("ECC bit %d\n", bitNum);
+        byteAddr = ((eccP >> 6) & 0x001) |
+                   ((eccP >> 7) & 0x002) |
+                   ((eccP >> 8) & 0x004) |
+                   ((eccP >> 9) & 0x008) |
+                   ((eccP >> 10) & 0x010) |
+                   ((eccP >> 11) & 0x020) |
+                   ((eccP >> 12) & 0x040) |
+                   ((eccP >> 13) & 0x080) |
+                   ((eccP >> 14) & 0x100) |
+                   ((eccP >> 15) & 0x200) |
+                   ((eccP >> 16) & 0x400) ;
 
-//        data[ byteAddr ] ^= 1 << bitNum;
+        data[ byteAddr ] ^= 1 << bitNum;
 
-//        return RT_MTD_EOK;
-//    }
+        return RT_MTD_EOK;
+    }
 
-//    /* Count number of one's in the syndrome. */
-//    count = 0;
-//    mask  = 0x00800000;
-//    while (mask)
-//    {
-//        if (syndrome & mask)
-//            count++;
-//        mask >>= 1;
-//    }
+    /* Count number of one's in the syndrome. */
+    count = 0;
+    mask  = 0x00800000;
+    while (mask)
+    {
+        if (syndrome & mask)
+            count++;
+        mask >>= 1;
+    }
 
-//    if (count == 1)           /* Error in the ECC itself. */
-//        return RT_MTD_EECC;
+    if (count == 1)           /* Error in the ECC itself. */
+        return RT_MTD_EECC;
 
-//    return -RT_MTD_EECC;       /* Unable to correct data. */
+    return -RT_MTD_EECC;       /* Unable to correct data. */
 
-//#undef ECC_MASK
-//#undef ECC_MASK24
-//}
+#undef ECC_MASK
+#undef ECC_MASK24
+}
 
 static rt_err_t stm32_mtd_nand_readpage(struct rt_mtd_nand_device *device,
                                         rt_off_t                   page,
@@ -301,19 +292,22 @@ static rt_err_t stm32_mtd_nand_readpage(struct rt_mtd_nand_device *device,
                                         rt_uint8_t                *spare,
                                         rt_uint32_t                spare_len)
 {
+    rt_uint32_t index;
+    rt_uint32_t gecc, recc;
+    rt_uint8_t tmp[4];
     rt_err_t result;
     rt_uint32_t i;
     struct stm32_nand *nand;
-    rt_uint8_t oob_buffer[64];
 
     RT_ASSERT(device != RT_NULL);
     nand = rt_container_of(device, struct stm32_nand, mtd_nand);
     page = page + device->block_start * device->pages_per_block;
     if (page / device->pages_per_block > device->block_end)
     {
+        LOG_W("read page out of bound!");
         return -RT_MTD_EIO;
     }
-
+    LOG_D("read page off:%d", page);
     result = RT_MTD_EOK;
     rt_mutex_take(&nand->lock, RT_WAITING_FOREVER);
 
@@ -333,35 +327,40 @@ static rt_err_t stm32_mtd_nand_readpage(struct rt_mtd_nand_device *device,
         stm32_nand_wait_rb(0);         //wait RB=0
         //下面2行代码是真正判断NAND是否准备好的
         stm32_nand_wait_rb(1);         //wait RB=1
-
-        RT_ASSERT(data_len == device->page_size);
+        
+        FMC_NAND_ECC_Enable(nand->handle.Instance, STM32_NAND_BANK);
 
         for (i = 0; i < data_len; i ++)
         {
             STM32_NAND_GET_DAT(data[i]);
         }
-        
-//        oob_buffer = rt_malloc(device->oob_size);
-//        if(oob_buffer == 0)
-//        {
-//            LOG_W("no memery!");
-//        }
-        for (i = 0; i < device->oob_size; i ++)
+        gecc = FMC_NAND_GetECC(nand->handle.Instance, (uint32_t *)&gecc, STM32_NAND_BANK, 10);
+
+        if (data_len == device->page_size)
         {
-            STM32_NAND_GET_DAT(oob_buffer[i]);
-        }
-        /* verify ECC */
-#ifdef RT_USING_NFTL
-        if (nftl_ecc_verify256(data, device->page_size, oob_buffer) != RT_MTD_EOK)
-        {
-            rt_kprintf("ECC error, block: %d, page: %d!\n", page / device->pages_per_block,
-                       page % device->pages_per_block);
-            result = -RT_MTD_EECC;
-        }
-#endif
-        if (spare && spare_len)
-        {
-            rt_memcpy(spare, oob_buffer, spare_len);
+            for (index = 0; index < ECC_SIZE; index ++)
+            {
+                STM32_NAND_GET_DAT(tmp[index]);
+            }
+
+            if (spare && spare_len)
+            {
+                for (i = ECC_SIZE; i < spare_len; i ++)
+                {
+                    STM32_NAND_GET_DAT(spare[i]);
+                }
+                rt_memcpy(spare, tmp, ECC_SIZE);
+            }
+
+            recc   = (tmp[3] << 24) | (tmp[2] << 16) | (tmp[1] << 8) | tmp[0];
+
+            if (recc != 0xFFFFFFFF && gecc != 0)
+                result = nand_datacorrect(gecc, recc, data);
+
+            if (result != RT_MTD_EOK)
+                LOG_D("page: %d, gecc %X, recc %X>", page, gecc, recc);
+
+            goto _exit;
         }
     }
 
@@ -390,7 +389,6 @@ static rt_err_t stm32_mtd_nand_readpage(struct rt_mtd_nand_device *device,
 
     }
 _exit:
-//    if (oob_buffer) rt_free(oob_buffer);
     rt_mutex_release(&nand->lock);
 
     return (result);
@@ -404,9 +402,9 @@ static rt_err_t stm32_mtd_nand_writepage(struct rt_mtd_nand_device *device,
         rt_uint32_t                spare_len)
 {
     rt_err_t result;
+    rt_uint32_t gecc;
     rt_uint32_t i;
     struct stm32_nand *nand;
-    rt_uint8_t oob_buffer[64];
 
     RT_ASSERT(device != RT_NULL);
     nand = rt_container_of(device, struct stm32_nand, mtd_nand);
@@ -416,56 +414,78 @@ static rt_err_t stm32_mtd_nand_writepage(struct rt_mtd_nand_device *device,
     {
         return -RT_MTD_EIO;
     }
-
-    if (data == RT_NULL)
-	{
-	    LOG_W("write data is NULL");
-	    return -RT_MTD_EIO; /* we didn't support write data only */
-	}
-    result = RT_MTD_EOK;
-
-    rt_mutex_take(&nand->lock, RT_WAITING_FOREVER);
-//    oob_buffer = rt_malloc(device->oob_size);
-//    if(oob_buffer == 0)
-//    {
-//        LOG_W("no memery!");
-//    }
-    if (spare != RT_NULL && spare_len > 0)
-    {
-        rt_memcpy(oob_buffer, spare, spare_len);
-    }
-
-    /* generate ECC */
-#ifdef RT_USING_NFTL
-    nftl_ecc_compute256(data, device->page_size, oob_buffer);
-#endif
+    LOG_D("write page off:%d", page);
     
-    STM32_NAND_SET_CMD(NAND_WRITE0); //发送地址
-    STM32_NAND_SET_ADD((rt_uint8_t)(0 & 0xFF));
-    STM32_NAND_SET_ADD((rt_uint8_t)(0 >> 8));
-    STM32_NAND_SET_ADD((rt_uint8_t)(page & 0xFF));
-    STM32_NAND_SET_ADD((rt_uint8_t)(page >> 8));
-    STM32_NAND_SET_ADD((rt_uint8_t)(page >> 16));
+    result = RT_MTD_EOK;
+    rt_mutex_take(&nand->lock, RT_WAITING_FOREVER);
 
-    for (i = 0; i < device->page_size; i ++)
+    if (data && data_len)
     {
-        STM32_NAND_SET_DAT(data[i]);
-    }
-    for (i = 0; i < device->oob_size; i ++)
-    {
-        STM32_NAND_SET_DAT(oob_buffer[i]);
+        STM32_NAND_SET_CMD(NAND_WRITE0); //发送地址
+        STM32_NAND_SET_ADD((rt_uint8_t)(0 & 0xFF));
+        STM32_NAND_SET_ADD((rt_uint8_t)(0 >> 8));
+        STM32_NAND_SET_ADD((rt_uint8_t)(page & 0xFF));
+        STM32_NAND_SET_ADD((rt_uint8_t)(page >> 8));
+        STM32_NAND_SET_ADD((rt_uint8_t)(page >> 16));
+
+        FMC_NAND_ECC_Enable(nand->handle.Instance, STM32_NAND_BANK);
+
+        for (i = 0; i < data_len; i ++)
+        {
+            STM32_NAND_SET_DAT(data[i]);
+        }
+        gecc = FMC_NAND_GetECC(nand->handle.Instance, (uint32_t *)&gecc, STM32_NAND_BANK, 10);
+
+        FMC_NAND_ECC_Disable(nand->handle.Instance, STM32_NAND_BANK);
+
+        if (data_len == device->page_size)
+        {
+            STM32_NAND_SET_DAT((uint8_t)gecc);
+            STM32_NAND_SET_DAT((uint8_t)(gecc >> 8));
+            STM32_NAND_SET_DAT((uint8_t)(gecc >> 16));
+            STM32_NAND_SET_DAT((uint8_t)(gecc >> 24));
+
+            if (spare && spare_len)
+            {
+                for (i = ECC_SIZE; i < spare_len; i ++)
+                {
+                    STM32_NAND_SET_DAT(spare[i]);
+                }
+            }
+
+        }
+        STM32_NAND_SET_CMD(NAND_WRITE_TURE1);
+        if (wait_for_ready() != NSTA_READY)
+        {
+            nand_reset();
+            result = -RT_MTD_EIO;//失败
+        }
+        goto _exit;
     }
 
-
-    STM32_NAND_SET_CMD(NAND_WRITE_TURE1);
-    if (wait_for_ready() != NSTA_READY)
+    if (spare && spare_len)
     {
-        nand_reset();
-        result = -RT_MTD_EIO;//失败
+        STM32_NAND_SET_CMD(NAND_WRITE0); //发送地址
+        STM32_NAND_SET_ADD((rt_uint8_t)(device->page_size & 0xFF));
+        STM32_NAND_SET_ADD((rt_uint8_t)(device->page_size >> 8));
+        STM32_NAND_SET_ADD((rt_uint8_t)(page & 0xFF));
+        STM32_NAND_SET_ADD((rt_uint8_t)(page >> 8));
+        STM32_NAND_SET_ADD((rt_uint8_t)(page >> 16));
+
+        if (spare && spare_len)
+            for (i = ECC_SIZE; i < spare_len; i ++)
+            {
+                STM32_NAND_SET_DAT(spare[i]);
+            }
+        STM32_NAND_SET_CMD(NAND_WRITE_TURE1);
+        if (wait_for_ready() != NSTA_READY)
+        {
+            nand_reset();
+            result = -RT_MTD_EIO;//失败
+        }
     }
-  
+
 _exit:
-//    if (oob_buffer) rt_free(oob_buffer);
     rt_mutex_release(&nand->lock);
 
     return (result);
@@ -482,9 +502,10 @@ static rt_err_t stm32_mtd_nand_eraseblock(struct rt_mtd_nand_device *device,
     RT_ASSERT(device != RT_NULL);
     nand = rt_container_of(device, struct stm32_nand, mtd_nand);
 
+    LOG_D("erase block:%d", block);
     /* add the start blocks */
     block = block + device->block_start;
-    blockPage = (block << 6);
+    blockPage = (block << 6); /* need mdify */
     result = RT_MTD_EOK;
 
     rt_mutex_take(&nand->lock, RT_WAITING_FOREVER);
@@ -610,4 +631,4 @@ __exit:
 
     return RT_EOK;
 }
-INIT_ENV_EXPORT(rt_hw_mtd_nand_init);
+INIT_BOARD_EXPORT(rt_hw_mtd_nand_init);
