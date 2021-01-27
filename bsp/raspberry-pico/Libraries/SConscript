@@ -115,9 +115,9 @@ path = [
 
 CPPDEFINES = [
     'PICO_BIT_OPS_PICO=1',
-    'PICO_BOARD=\"pico\"',
+    # 'PICO_BOARD=\"pico\"',
     'PICO_BUILD=1',
-    'PICO_CMAKE_BUILD_TYPE=\"Debug\"',
+    # 'PICO_CMAKE_BUILD_TYPE=\"Debug\"',
     'PICO_COPY_TO_RAM=0',
     'PICO_CXX_ENABLE_EXCEPTIONS=0',
     'PICO_DIVIDER_HARDWARE=1',
@@ -129,9 +129,9 @@ CPPDEFINES = [
     'PICO_NO_HARDWARE=0',
     'PICO_ON_DEVICE=1',
     'PICO_PRINTF_PICO=1',
-    # 'PICO_PROGRAM_URL=\"https://github.com/raspberrypi/pico-examples/tree/HEAD/blink\"',
+    # 'PICO_PROGRAM_URL="https://github.com/raspberrypi/pico-examples/tree/HEAD/blink"',
     'PICO_STDIO_UART=1',
-    # 'PICO_TARGET_NAME=\"blink\"',
+    # 'PICO_TARGET_NAME="blink"',
     'PICO_USE_BLOCKED_RAM=0'
 ]
 group = DefineGroup('Libraries', src, depend = [''], CPPPATH = path, CPPDEFINES = CPPDEFINES)

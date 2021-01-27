@@ -42,7 +42,7 @@
 #define RT_VER_NUM 0x40001
 #define ARCH_ARM
 #define ARCH_ARM_CORTEX_M
-#define ARCH_ARM_CORTEX_M3
+#define ARCH_ARM_CORTEX_M0
 
 /* RT-Thread Components */
 
@@ -101,7 +101,7 @@
 
 /* POSIX layer and C standard library */
 
-// #define RT_USING_LIBC
+#define RT_USING_LIBC
 // #define RT_USING_POSIX
 
 /* Network */
