@@ -70,7 +70,8 @@ jobs:
           wget -q https://github.com/Guozhanxin/qemu-runner/releases/download/0.1/qemu.tar.bz2
           sudo tar xjf qemu.tar.bz2
           sudo mv sysroot-cross/qemu ~/
-          sudo export PATH=~/qemu/bin:$PATH
+          # sudo export PATH=~/qemu/bin:$PATH
+          # echo "RTT_CC=gcc" >> $GITHUB_ENV
           echo "Install Qemu_runner success"
 
       - name: Run utest

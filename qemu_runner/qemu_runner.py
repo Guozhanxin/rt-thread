@@ -49,7 +49,7 @@ class QemuRunner:
                 text += str(line, encoding="utf8") + '\r\n'
             return text
 
-        result = exec_cmd('qemu-system-arm --version')
+        result = exec_cmd('~/qemu/bin/qemu-system-arm --version')
         check_ok = (result.find('version') != -1)
         if check_ok:
             self.env_version = result
@@ -63,7 +63,7 @@ class QemuRunner:
             logger.error("QEMU environment check FAILED.")
             return
         # starting the new process for running QEMU
-        cmd = 'qemu-system-arm -nographic -M stm32f429-st-disco -kernel ' + self.elf_path #+ ' -sd ' + self.sd_path
+        cmd = '~/qemu/bin/qemu-system-arm -nographic -M stm32f429-st-disco -kernel ' + self.elf_path #+ ' -sd ' + self.sd_path
         if platform.system() == "Windows":
             self.sub_proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=0,
                                              creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
