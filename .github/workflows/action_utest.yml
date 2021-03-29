@@ -67,8 +67,8 @@ jobs:
         if: ${{ matrix.legs.RTT_TOOL_CHAIN == 'sourcery-arm' && success() }}
         shell: bash
         run: |
-          ossutil64 -c ${{ secrets.FILE_OSSUTILCONFIG }} cp oss://realthread-artifacts/qemu-stm32/build-linux-static.tar.gz build-linux-static.tar.gz
-          tar xvf build-linux-static.tar.gz
+          wget -q https://github.com/Guozhanxin/qemu-runner/releases/download/0.1/qemu.tar.bz2
+          sudo tar xjf qemu.tar.bz2
           mv sysroot-cross/qemu ~/
           export PATH=~/qemu/bin:$PATH
           echo "Install Qemu_runner success"
