@@ -24,7 +24,7 @@ class Utest:
     def __init__(self, exec_cmd):
         self.exec_cmd = exec_cmd
         self.testcases = collections.OrderedDict()
-        signaled, tc_list_log = self.exec_cmd('/bin/test.bin list', 1)
+        signaled, tc_list_log = self.exec_cmd('utest_list', 1)
         for line in tc_list_log:
             if line.find('[testcase name]') != -1:
                 # get the testcase name
@@ -42,7 +42,7 @@ class Utest:
 
     def test(self, name):
         logger.info('Start test: ' + name)
-        signaled, tc_list_log = self.exec_cmd('/bin/test.bin ' + name, self.testcases[name])
+        signaled, tc_list_log = self.exec_cmd('utest_run ' + name, self.testcases[name])
         for line in tc_list_log:
             if line.find('[ result   ] testcase (' + name + ')') != -1:
                 if (line.find('PASSED')) != -1:
