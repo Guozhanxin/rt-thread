@@ -81,6 +81,8 @@ jobs:
           RTT_BSP: ${{ matrix.legs.RTT_BSP }}
           RTT_TOOL_CHAIN: ${{ matrix.legs.RTT_TOOL_CHAIN }}
         run: |
+          ls
           pushd qemu_runner
-          python qemu_runner.py --elf bsp/$RTT_BSP/rtthread.bin
+          ls
+          python qemu_runner.py --elf ../bsp/$RTT_BSP/rtthread.bin
           popd
