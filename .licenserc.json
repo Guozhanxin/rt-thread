@@ -17,6 +17,6 @@
     ],
     "ignore": [
         "bsp/",
-        "components/net/"
+        "components/net/lwip*/"
     ]
 }
