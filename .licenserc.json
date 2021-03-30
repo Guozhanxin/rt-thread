@@ -15,6 +15,8 @@
         "components/utilities/ymodem/",
         "components/utilities/zmodem/",
         "components/vbus/",
-        "components/vmm/"
+        "components/vmm/",
+        "documentation/",
+        "tools/kconfig-frontends/"
     ]
 }
