@@ -1,9 +1,13 @@
 {
-    "src/*.c": [
+    "src/*.{c,h}": [
         "Copyright (c) 2006-2021, RT-Thread Development Team",
         "SPDX-License-Identifier: Apache-2.0"
     ],
-    "include/*.h": [
+    "include/*.{c,h}": [
+        "Copyright (c) 2006-2021, RT-Thread Development Team",
+        "SPDX-License-Identifier: Apache-2.0"
+    ],
+    "components/**/*.{c,h}": [
         "Copyright (c) 2006-2021, RT-Thread Development Team",
         "SPDX-License-Identifier: Apache-2.0"
     ],
