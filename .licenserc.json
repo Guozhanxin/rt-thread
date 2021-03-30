@@ -1,18 +1,12 @@
 {
-    // "**/*.ts": "Copyright 2019 My Name. All rights reserved. MIT license.",
-
-    "src/*.{c,h}": [
+    "src/*.c": [
         "Copyright (c) 2006-2021, RT-Thread Development Team",
-
-        "SPDX-License-Identifier: Apache-2.0",
+        "SPDX-License-Identifier: Apache-2.0"
     ],
-
-    "include/*.{c,h}": [
+    "include/*.h": [
         "Copyright (c) 2006-2021, RT-Thread Development Team",
-
-        "SPDX-License-Identifier: Apache-2.0",
+        "SPDX-License-Identifier: Apache-2.0"
     ],
-
     "ignore": [
         "*.md", // ignore this file
         ".github/", // ignore all files under vendor
