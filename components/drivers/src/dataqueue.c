@@ -81,7 +81,7 @@ rt_err_t rt_data_queue_push(struct rt_data_queue *queue,
         }
 
         /* current context checking */
-        RT_DEBUG_NOT_IN_INTERRUPT;
+        RT_DEBUG_SCHEDULER_AVAILABLE;
 
         /* reset thread error number */
         thread->error = RT_EOK;
@@ -181,7 +181,7 @@ rt_err_t rt_data_queue_pop(struct rt_data_queue *queue,
         }
 
         /* current context checking */
-        RT_DEBUG_NOT_IN_INTERRUPT;
+        RT_DEBUG_SCHEDULER_AVAILABLE;
 
         /* reset thread error number */
         thread->error = RT_EOK;
