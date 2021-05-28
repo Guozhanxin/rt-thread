@@ -83,7 +83,7 @@ int rt_wqueue_wait(rt_wqueue_t *queue, int condition, int msec)
     rt_base_t level;
 
     /* current context checking */
-    RT_DEBUG_NOT_IN_INTERRUPT;
+    RT_DEBUG_SCHEDULER_NOT_LOCK;
 
     tick = rt_tick_from_millisecond(msec);
 

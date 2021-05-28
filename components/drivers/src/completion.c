@@ -51,6 +51,9 @@ rt_err_t rt_completion_wait(struct rt_completion *completion,
         }
         else
         {
+            /* current context checking */
+            RT_DEBUG_SCHEDULER_NOT_LOCK;
+
             /* reset thread error number */
             thread->error = RT_EOK;
 
