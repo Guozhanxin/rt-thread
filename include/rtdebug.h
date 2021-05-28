@@ -129,6 +129,24 @@ do                                                                            \
 }                                                                             \
 while (0)
 
+/* "scheduler not locked" means:
+ *     1) scheduler is not locked.
+ */
+#define RT_DEBUG_SCHEDULER_NOT_LOCKED                                         \
+do                                                                            \
+{                                                                             \
+    rt_base_t level;                                                          \
+    level = rt_hw_interrupt_disable();                                        \
+    if (rt_critical_level() != 0)                                             \
+    {                                                                         \
+        rt_kprintf("Function[%s]: shall not be used when scheduler locked\n", \
+                   __FUNCTION__);                                             \
+        RT_ASSERT(0)                                                          \
+    }                                                                         \
+    rt_hw_interrupt_enable(level);                                            \
+}                                                                             \
+while (0)
+
 /* "scheduler available" means:
  *     1) the scheduler has been started.
  *     2) not in interrupt context.
@@ -152,6 +170,7 @@ while (0)
 #else
 #define RT_DEBUG_NOT_IN_INTERRUPT
 #define RT_DEBUG_IN_THREAD_CONTEXT
+#define RT_DEBUG_SCHEDULER_NOT_LOCKED
 #define RT_DEBUG_SCHEDULER_AVAILABLE
 #endif
 
@@ -161,6 +180,7 @@ while (0)
 #define RT_DEBUG_LOG(type, message)
 #define RT_DEBUG_NOT_IN_INTERRUPT
 #define RT_DEBUG_IN_THREAD_CONTEXT
+#define RT_DEBUG_SCHEDULER_NOT_LOCKED
 #define RT_DEBUG_SCHEDULER_AVAILABLE
 
 #endif /* RT_DEBUG */

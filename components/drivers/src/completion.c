@@ -35,6 +35,11 @@ rt_err_t rt_completion_wait(struct rt_completion *completion,
     rt_thread_t thread;
     RT_ASSERT(completion != RT_NULL);
 
+    if (timeout != 0)
+    {
+        RT_DEBUG_SCHEDULER_NOT_LOCKED;
+    }
+
     result = RT_EOK;
     thread = rt_thread_self();
 

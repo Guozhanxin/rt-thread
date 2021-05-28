@@ -365,6 +365,11 @@ rt_err_t rt_sem_take(rt_sem_t sem, rt_int32_t time)
 
     RT_OBJECT_HOOK_CALL(rt_object_trytake_hook, (&(sem->parent.parent)));
 
+    if (time != 0)
+    {
+        RT_DEBUG_SCHEDULER_NOT_LOCKED;
+    }
+
     /* disable interrupt */
     temp = rt_hw_interrupt_disable();
 
@@ -700,7 +705,7 @@ rt_err_t rt_mutex_take(rt_mutex_t mutex, rt_int32_t time)
     struct rt_thread *thread;
 
     /* this function must not be used in interrupt even if time = 0 */
-    RT_DEBUG_IN_THREAD_CONTEXT;
+    RT_DEBUG_SCHEDULER_AVAILABLE;
 
     /* parameter check */
     RT_ASSERT(mutex != RT_NULL);
@@ -775,9 +780,6 @@ __again:
             }
             else
             {
-                /* current context checking */
-                RT_DEBUG_SCHEDULER_AVAILABLE;
-
                 /* mutex is unavailable, push to suspend list */
                 RT_DEBUG_LOG(RT_DEBUG_IPC, ("mutex_take: suspend thread: %s\n",
                                             thread->name));
@@ -1240,7 +1242,8 @@ rt_err_t rt_event_recv(rt_event_t   event,
     register rt_ubase_t level;
     register rt_base_t status;
 
-    RT_DEBUG_IN_THREAD_CONTEXT;
+    /* current context checking */
+    RT_DEBUG_SCHEDULER_AVAILABLE;
 
     /* parameter check */
     RT_ASSERT(event != RT_NULL);
@@ -1304,9 +1307,6 @@ rt_err_t rt_event_recv(rt_event_t   event,
     }
     else
     {
-        /* current context checking */
-        RT_DEBUG_SCHEDULER_AVAILABLE;
-
         /* fill thread event info */
         thread->event_set  = set;
         thread->event_info = option;
@@ -1569,6 +1569,10 @@ rt_err_t rt_mb_send_wait(rt_mailbox_t mb,
     RT_ASSERT(mb != RT_NULL);
     RT_ASSERT(rt_object_get_type(&mb->parent.parent) == RT_Object_Class_MailBox);
 
+    if (timeout != 0)
+    {
+        RT_DEBUG_SCHEDULER_NOT_LOCKED;
+    }
     /* initialize delta tick */
     tick_delta = 0;
     /* get current thread */
@@ -1790,6 +1794,10 @@ rt_err_t rt_mb_recv(rt_mailbox_t mb, rt_ubase_t *value, rt_int32_t timeout)
     RT_ASSERT(mb != RT_NULL);
     RT_ASSERT(rt_object_get_type(&mb->parent.parent) == RT_Object_Class_MailBox);
 
+    if (timeout != 0)
+    {
+        RT_DEBUG_SCHEDULER_NOT_LOCKED;
+    }
     /* initialize delta tick */
     tick_delta = 0;
     /* get current thread */
@@ -2187,6 +2195,10 @@ rt_err_t rt_mq_send_wait(rt_mq_t     mq,
     RT_ASSERT(buffer != RT_NULL);
     RT_ASSERT(size != 0);
 
+    if (timeout != 0)
+    {
+        RT_DEBUG_SCHEDULER_NOT_LOCKED;
+    }
     /* greater than one message size */
     if (size > mq->msg_size)
         return -RT_ERROR;
@@ -2470,6 +2482,10 @@ rt_err_t rt_mq_recv(rt_mq_t    mq,
     RT_ASSERT(buffer != RT_NULL);
     RT_ASSERT(size != 0);
 
+    if (timeout != 0)
+    {
+        RT_DEBUG_SCHEDULER_NOT_LOCKED;
+    }
     /* initialize delta tick */
     tick_delta = 0;
     /* get current thread */

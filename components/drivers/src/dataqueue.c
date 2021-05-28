@@ -66,6 +66,11 @@ rt_err_t rt_data_queue_push(struct rt_data_queue *queue,
     RT_ASSERT(queue != RT_NULL);
     RT_ASSERT(queue->magic == DATAQUEUE_MAGIC);
 
+    if (timeout != 0)
+    {
+        RT_DEBUG_SCHEDULER_NOT_LOCKED;
+    }
+
     result = RT_EOK;
     thread = rt_thread_self();
 
@@ -166,6 +171,11 @@ rt_err_t rt_data_queue_pop(struct rt_data_queue *queue,
     RT_ASSERT(queue->magic == DATAQUEUE_MAGIC);
     RT_ASSERT(data_ptr != RT_NULL);
     RT_ASSERT(size != RT_NULL);
+
+    if (timeout != 0)
+    {
+        RT_DEBUG_SCHEDULER_NOT_LOCKED;
+    }
 
     result = RT_EOK;
     thread = rt_thread_self();
