@@ -33,7 +33,7 @@ jobs:
         scons -j$(nproc) -C $TEST_BSP_ROOT
     - name: Start test
       run: |
-        git clone https://github.com/armink/UtestRunner.git
+        git clone https://github.com/Guozhanxin/UtestRunner.git
         pushd $TEST_BSP_ROOT
         dd if=/dev/zero of=sd.bin bs=1024 count=65536
         popd
