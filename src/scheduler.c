@@ -972,6 +972,10 @@ rt_uint16_t rt_critical_level(void)
 #ifdef RT_USING_SMP
     struct rt_thread *current_thread = rt_cpu_self()->current_thread;
 
+    if (current_thread == RT_NULL)
+    {
+        return 0;
+    }
     return current_thread->critical_lock_nest;
 #else
     return rt_scheduler_lock_nest;
