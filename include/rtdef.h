@@ -675,6 +675,9 @@ struct rt_thread
 #ifdef RT_USING_LWP
     void        *lwp;
 #endif
+#ifdef RT_THREAD_TLS_MAX
+    void        *tls[RT_THREAD_TLS_MAX];
+#endif
 
     rt_ubase_t user_data;                             /**< private user data beyond this thread */
 };

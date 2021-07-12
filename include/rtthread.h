@@ -147,7 +147,11 @@ rt_err_t rt_thread_control(rt_thread_t thread, int cmd, void *arg);
 rt_err_t rt_thread_suspend(rt_thread_t thread);
 rt_err_t rt_thread_resume(rt_thread_t thread);
 void rt_thread_timeout(void *parameter);
-
+void rt_thread_tls_put(rt_thread_t thread,
+                       rt_base_t index,
+                       void *value);
+void *rt_thread_tls_get(rt_thread_t thread,
+                        rt_base_t index);
 #ifdef RT_USING_SIGNALS
 void rt_thread_alloc_sig(rt_thread_t tid);
 void rt_thread_free_sig(rt_thread_t tid);
