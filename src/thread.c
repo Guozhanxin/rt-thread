@@ -91,6 +91,12 @@ static void _rt_thread_cleanup_execute(rt_thread_t thread)
         dlmodule_destroy(module);
     }
 #endif /* RT_USING_MODULE */
+#ifdef RT_THREAD_TLS_MAX
+    if (thread->user_data)
+    {
+        rt_free(thread->user_data);
+    }
+#endif
     /* invoke thread cleanup */
     if (thread->cleanup != RT_NULL)
         thread->cleanup(thread);
@@ -231,7 +237,12 @@ static rt_err_t _rt_thread_init(struct rt_thread *thread,
 #ifdef RT_USING_CPU_USAGE
     thread->duration_tick = 0;
 #endif
-
+#ifdef RT_THREAD_TLS_MAX
+    if (!thread->user_data)
+    {
+        thread->user_data = rt_malloc(RT_THREAD_TLS_MAX * sizeof(void *));
+    }
+#endif
     RT_OBJECT_HOOK_CALL(rt_thread_inited_hook, (thread));
 
     return RT_EOK;
@@ -923,10 +934,12 @@ void rt_thread_tls_put(rt_thread_t thread,
                        rt_base_t index,
                        void *value)
 {
+    void *tls;
     if (!thread) thread = rt_thread_self();
-    if (index < RT_THREAD_TLS_MAX / 4)
+    tls = (void *)thread->user_data;
+    if (index < RT_THREAD_TLS_MAX)
     {
-        thread->tls[ index ] = value;
+        *(rt_uint32_t *)((rt_uint32_t)tls + index * 4) = (rt_uint32_t)value;
     }
 }
 
@@ -934,10 +947,12 @@ void *rt_thread_tls_get(rt_thread_t thread,
                         rt_base_t index)
 {
     void *ret = NULL;
+    void *tls;
     if (!thread) thread = rt_thread_self();
-    if (index < RT_THREAD_TLS_MAX / 4)
+    tls = (void *)thread->user_data;
+    if (index < RT_THREAD_TLS_MAX)
     {
-        ret = thread->tls[ index ];
+        ret = (void *)*(rt_uint32_t *)((rt_uint32_t)tls + index * 4);
     }
     else
     {
