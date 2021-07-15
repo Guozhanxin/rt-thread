@@ -4,4 +4,13 @@ config RT_USING_CPLUSPLUS
     bool "Support C++ features"
     default n
 
+if RT_USING_CPLUSPLUS
+
+    config RT_USING_CPLUSPLUS11_MTHREAD
+    bool "Support C++11's Multithreaded features"
+    select RT_USING_LIBC
+    default n
+
+endif
+
 endmenu

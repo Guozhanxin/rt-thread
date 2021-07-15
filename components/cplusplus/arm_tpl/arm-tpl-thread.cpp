@@ -151,7 +151,6 @@ extern "C" void *__ARM_TPL_tls_get(__ARM_TPL_tls_key __key)
         return nullptr;
     unsigned int k = 2 * __key;
     return rt_thread_tls_get(nullptr, k);
-//  return 0;
 }
 
 extern "C" int __ARM_TPL_tls_set(__ARM_TPL_tls_key __key, void *__p)

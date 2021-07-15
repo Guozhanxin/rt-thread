@@ -59,6 +59,10 @@ config RT_THREAD_PRIORITY_MAX
     default 32  if RT_THREAD_PRIORITY_32
     default 256 if RT_THREAD_PRIORITY_256
 
+config RT_THREAD_TLS_MAX
+    int
+    default 32
+
 config RT_TICK_PER_SECOND
     int "Tick frequency, Hz"
     range 10 1000

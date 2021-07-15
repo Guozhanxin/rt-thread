@@ -12,7 +12,14 @@
 #ifdef RT_USING_HEAP
 
 #ifdef __CLANG_ARM
+/* avoid the heap and heap-using library functions supplied by arm */
 __asm(".global __use_no_heap\n\t");
+//extern void $Super$$__rt_lib_init_heap_2(void);
+///* avoid the heap and heap-using library functions supplied by arm */
+//void $Sub$$__rt_lib_init_heap_2(void)
+//{
+//    /* empty */
+//}
 #else
 #pragma import(__use_no_heap)
 #endif
@@ -37,7 +44,7 @@ RTM_EXPORT(calloc);
 
 void free(void *rmem)
 {
-    rt_free(rmem);
+    if(rt_thread_self()) rt_free(rmem);
 }
 RTM_EXPORT(free);
 #endif

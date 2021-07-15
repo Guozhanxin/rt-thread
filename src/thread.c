@@ -94,7 +94,8 @@ static void _rt_thread_cleanup_execute(rt_thread_t thread)
 #ifdef RT_THREAD_TLS_MAX
     if (thread->user_data)
     {
-        rt_free(thread->user_data);
+        rt_free((void*)thread->user_data);
+        thread->user_data = 0;
     }
 #endif
     /* invoke thread cleanup */
@@ -240,7 +241,7 @@ static rt_err_t _rt_thread_init(struct rt_thread *thread,
 #ifdef RT_THREAD_TLS_MAX
     if (!thread->user_data)
     {
-        thread->user_data = rt_malloc(RT_THREAD_TLS_MAX * sizeof(void *));
+        thread->user_data = (rt_ubase_t)rt_malloc(RT_THREAD_TLS_MAX * sizeof(void *));
     }
 #endif
     RT_OBJECT_HOOK_CALL(rt_thread_inited_hook, (thread));
@@ -936,6 +937,7 @@ void rt_thread_tls_put(rt_thread_t thread,
 {
     void *tls;
     if (!thread) thread = rt_thread_self();
+    RT_ASSERT(rt_object_get_type((rt_object_t)thread) == RT_Object_Class_Thread);
     tls = (void *)thread->user_data;
     if (index < RT_THREAD_TLS_MAX)
     {
@@ -949,6 +951,7 @@ void *rt_thread_tls_get(rt_thread_t thread,
     void *ret = NULL;
     void *tls;
     if (!thread) thread = rt_thread_self();
+    RT_ASSERT(rt_object_get_type((rt_object_t)thread) == RT_Object_Class_Thread);
     tls = (void *)thread->user_data;
     if (index < RT_THREAD_TLS_MAX)
     {

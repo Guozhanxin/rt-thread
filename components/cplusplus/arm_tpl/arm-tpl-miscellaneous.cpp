@@ -6,7 +6,7 @@ extern "C" int __ARM_TPL_execute_once(__ARM_TPL_exec_once_flag *__flag,
     if (*__flag == 0)
     {
         __init_routine();
-        *__flag = 0;
+        *__flag = 1;
     }
     return 0;
 }

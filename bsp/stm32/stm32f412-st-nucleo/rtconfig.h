@@ -10,7 +10,7 @@
 #define RT_ALIGN_SIZE 4
 #define RT_THREAD_PRIORITY_32
 #define RT_THREAD_PRIORITY_MAX 32
-#define RT_THREAD_TLS_MAX  64
+#define RT_THREAD_TLS_MAX 32
 #define RT_TICK_PER_SECOND 1000
 #define RT_USING_OVERFLOW_CHECK
 #define RT_USING_HOOK
@@ -58,6 +58,7 @@
 /* C++ features */
 
 #define RT_USING_CPLUSPLUS
+#define RT_USING_CPLUSPLUS11_MTHREAD
 
 /* Command shell */
 
@@ -68,7 +69,7 @@
 #define FINSH_USING_SYMTAB
 #define FINSH_USING_DESCRIPTION
 #define FINSH_THREAD_PRIORITY 20
-#define FINSH_THREAD_STACK_SIZE 8192
+#define FINSH_THREAD_STACK_SIZE 4096
 #define FINSH_CMD_SIZE 80
 #define FINSH_USING_MSH
 #define FINSH_USING_MSH_DEFAULT
@@ -77,6 +78,12 @@
 
 /* Device virtual file system */
 
+#define RT_USING_DFS
+#define DFS_USING_WORKDIR
+#define DFS_FILESYSTEMS_MAX 4
+#define DFS_FILESYSTEM_TYPES_MAX 4
+#define DFS_FD_MAX 16
+#define RT_USING_DFS_DEVFS
 
 /* Device Drivers */
 
@@ -94,6 +101,9 @@
 /* POSIX layer and C standard library */
 
 #define RT_USING_LIBC
+#define RT_USING_PTHREADS
+#define PTHREAD_NUM_MAX 8
+#define RT_USING_POSIX
 #define RT_LIBC_FIXED_TIMEZONE 8
 
 /* Network */
@@ -192,7 +202,7 @@
 #define BSP_USING_UART
 #define BSP_USING_UART3
 #define BSP_USING_ONCHIP_RTC
-#define BSP_RTC_USING_LSE
+#define BSP_RTC_USING_LSI
 
 /* Board extended module Drivers */
 
