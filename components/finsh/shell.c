@@ -811,10 +811,12 @@ __declspec(allocate("FSymTab$z")) const struct finsh_syscall __fsym_end =
  *
  * This function will initialize finsh shell
  */
+ #include <pthread.h>
 int finsh_system_init(void)
 {
     rt_err_t result = RT_EOK;
-    rt_thread_t tid;
+    rt_thread_t tid;    
+    pthread_t pid;
 
 #ifdef FINSH_USING_SYMTAB
 #ifdef __ARMCC_VERSION  /* ARM C Compiler */
@@ -874,6 +876,8 @@ int finsh_system_init(void)
     tid = rt_thread_create(FINSH_THREAD_NAME,
                            finsh_thread_entry, RT_NULL,
                            FINSH_THREAD_STACK_SIZE, FINSH_THREAD_PRIORITY, 10);
+
+    pthread_create(&pid, RT_NULL, finsh_thread_entry, RT_NULL);
 #else
     shell = &_shell;
     tid = &finsh_thread;
@@ -887,8 +891,9 @@ int finsh_system_init(void)
     rt_sem_init(&(shell->rx_sem), "shrx", 0, 0);
     finsh_set_prompt_mode(1);
 
-    if (tid != NULL && result == RT_EOK)
-        rt_thread_startup(tid);
+//    if (tid != NULL && result == RT_EOK)
+//        rt_thread_startup(tid);
+    pthread_join(pid, 0);
     return 0;
 }
 INIT_APP_EXPORT(finsh_system_init);

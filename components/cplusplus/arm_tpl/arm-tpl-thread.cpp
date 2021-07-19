@@ -1,67 +1,78 @@
 #include <arm-tpl.h>
 #include "tpl.h"
 #include <cstdio>
-static unsigned int localStorageKeyCounter = 0;
+#include <pthread.h>
 
-static void cTask(void *arg)
-{
-    for (unsigned int i = 0; i < RT_THREAD_TLS_MAX; i++)
-        rt_thread_tls_put(nullptr, i, nullptr);
-    ThreadStruct *threadStructPtr = (ThreadStruct *)arg;
-    threadStructPtr->func(threadStructPtr->arg);
-    rt_sem_release(threadStructPtr->joinSemaphore);
-    while (rt_sem_take(threadStructPtr->detachSemaphore, portMAX_DELAY) != pdTRUE);
-    for (volatile unsigned int i = 0; i < localStorageKeyCounter; i++)
-    {
-        unsigned int k = 2 * i;
-        void *val = rt_thread_tls_get(nullptr, k);
-        if (val != nullptr)
-        {
-            void (*__at_exit)(void *) = (void (*)(void *))(rt_thread_tls_get(nullptr, k + 1));
-            if (__at_exit != nullptr)
-                __at_exit(val);
-        }
-    }
+//static unsigned int localStorageKeyCounter = 0;
 
-    rt_sem_delete(threadStructPtr->detachSemaphore);
-    rt_sem_delete(threadStructPtr->joinSemaphore);
-    rt_free((void *)threadStructPtr);
-//  vTaskDelete(nullptr);
-//  for(;;);
-}
+//static void cTask(void *arg)
+//{
+//    for (unsigned int i = 0; i < RT_THREAD_TLS_MAX; i++)
+//        rt_thread_tls_put(nullptr, i, nullptr);
+//    ThreadStruct *threadStructPtr = (ThreadStruct *)arg;
+//    threadStructPtr->func(threadStructPtr->arg);
+//    rt_sem_release(threadStructPtr->joinSemaphore);
+//    while (rt_sem_take(threadStructPtr->detachSemaphore, portMAX_DELAY) != pdTRUE);
+//    for (volatile unsigned int i = 0; i < localStorageKeyCounter; i++)
+//    {
+//        unsigned int k = 2 * i;
+//        void *val = rt_thread_tls_get(nullptr, k);
+//        if (val != nullptr)
+//        {
+//            void (*__at_exit)(void *) = (void (*)(void *))(rt_thread_tls_get(nullptr, k + 1));
+//            if (__at_exit != nullptr)
+//                __at_exit(val);
+//        }
+//    }
+
+//    rt_sem_delete(threadStructPtr->detachSemaphore);
+//    rt_sem_delete(threadStructPtr->joinSemaphore);
+//    rt_free((void *)threadStructPtr);
+////  vTaskDelete(nullptr);
+////  for(;;);
+//}
 
 extern "C" int __ARM_TPL_thread_create(__ARM_TPL_thread_t *__t,
                                        void *(*__func)(void *),
                                        void *__arg)
 {
-    char name[8] = "thxx";
-    static int index = 0;
-    sprintf(name, "%s%d", "thxx", index++);
-    ThreadStruct *threadStructPtr = (ThreadStruct *)rt_malloc(sizeof(ThreadStruct));
-    if (threadStructPtr == nullptr)
-        goto exit1;
-    threadStructPtr->arg = __arg;
-    threadStructPtr->func = __func;
-    threadStructPtr->joinSemaphore = rt_sem_create("semx", 0, RT_IPC_FLAG_PRIO);
-    if (threadStructPtr->joinSemaphore == nullptr)
-        goto exit2;
-    threadStructPtr->detachSemaphore = rt_sem_create("semx", 0, RT_IPC_FLAG_PRIO);
-    if (threadStructPtr->detachSemaphore == nullptr)
-        goto exit3;
-    if ((threadStructPtr->task = rt_thread_create(name, cTask, (void *)threadStructPtr, 4096, FINSH_THREAD_PRIORITY, 100)) != 0)
-//  if (xTaskCreate((TaskFunction_t)cTask, "C++", configMINIMAL_STACK_SIZE, (void*)threadStructPtr, tskIDLE_PRIORITY, &(threadStructPtr->task)) == pdTRUE)
+    int ret = 0;
+    pthread_t pid;
+    ret = pthread_create(&pid, RT_NULL, __func, __arg);
+    if (ret == 0)
     {
-        rt_thread_startup(threadStructPtr->task);
-        __t->data = (std::uintptr_t)threadStructPtr;
+        __t->data = (std::uintptr_t)pid;
         return 0;
     }
-exit:
-    rt_sem_delete(threadStructPtr->detachSemaphore);
-exit3:
-    rt_sem_delete(threadStructPtr->joinSemaphore);
-exit2:
-    rt_free(threadStructPtr);
-exit1:
+
+//    char name[8] = "thxx";
+//    static int index = 0;
+//    sprintf(name, "%s%d", "thxx", index++);
+//    ThreadStruct *threadStructPtr = (ThreadStruct *)rt_malloc(sizeof(ThreadStruct));
+//    if (threadStructPtr == nullptr)
+//        goto exit1;
+//    threadStructPtr->arg = __arg;
+//    threadStructPtr->func = __func;
+//    threadStructPtr->joinSemaphore = rt_sem_create("semx", 0, RT_IPC_FLAG_PRIO);
+//    if (threadStructPtr->joinSemaphore == nullptr)
+//        goto exit2;
+//    threadStructPtr->detachSemaphore = rt_sem_create("semx", 0, RT_IPC_FLAG_PRIO);
+//    if (threadStructPtr->detachSemaphore == nullptr)
+//        goto exit3;
+//    if ((threadStructPtr->task = rt_thread_create(name, cTask, (void *)threadStructPtr, 4096, FINSH_THREAD_PRIORITY, 100)) != 0)
+////  if (xTaskCreate((TaskFunction_t)cTask, "C++", configMINIMAL_STACK_SIZE, (void*)threadStructPtr, tskIDLE_PRIORITY, &(threadStructPtr->task)) == pdTRUE)
+//    {
+//        rt_thread_startup(threadStructPtr->task);
+//        __t->data = (std::uintptr_t)threadStructPtr;
+//        return 0;
+//    }
+//exit:
+//    rt_sem_delete(threadStructPtr->detachSemaphore);
+//exit3:
+//    rt_sem_delete(threadStructPtr->joinSemaphore);
+//exit2:
+//    rt_free(threadStructPtr);
+//exit1:
     return -1;
 }
 
@@ -79,20 +90,21 @@ extern "C" int __ARM_TPL_thread_id_compare(__ARM_TPL_thread_id __tid1,
 extern "C" __ARM_TPL_thread_id __ARM_TPL_thread_get_current_id()
 {
 //  return (__ARM_TPL_thread_id)xTaskGetCurrentTaskHandle();
-    return (__ARM_TPL_thread_id)rt_thread_self();
+    return (__ARM_TPL_thread_id)pthread_self();
 }
 
 extern "C" __ARM_TPL_thread_id __ARM_TPL_thread_get_id(
     const __ARM_TPL_thread_t *__t)
 {
-    return (__ARM_TPL_thread_id)(((ThreadStruct *)(__t->data))->task);
+    return (__ARM_TPL_thread_id)(__t->data);
 }
 
 extern "C" int __ARM_TPL_thread_join(__ARM_TPL_thread_t *__t)
 {
-    ThreadStruct *threadStructPtr = (ThreadStruct *)(__t->data);
-    rt_sem_take(threadStructPtr->joinSemaphore, RT_WAITING_FOREVER);
-    rt_sem_release(threadStructPtr->detachSemaphore);
+    pthread_join((pthread_t)(__t->data), RT_NULL);
+//    ThreadStruct *threadStructPtr = (ThreadStruct *)(__t->data);
+//    rt_sem_take(threadStructPtr->joinSemaphore, RT_WAITING_FOREVER);
+//    rt_sem_release(threadStructPtr->detachSemaphore);
 //  while (xSemaphoreTake(threadStructPtr->joinSemaphore, portMAX_DELAY) != pdTRUE);
 //  xSemaphoreGive(threadStructPtr->detachSemaphore);
     return 0;
@@ -100,8 +112,9 @@ extern "C" int __ARM_TPL_thread_join(__ARM_TPL_thread_t *__t)
 
 extern "C" int __ARM_TPL_thread_detach(__ARM_TPL_thread_t *__t)
 {
-    ThreadStruct *threadStructPtr = (ThreadStruct *)(__t->data);
-    rt_sem_release(threadStructPtr->detachSemaphore);
+    pthread_detach((pthread_t)(__t->data));
+//    ThreadStruct *threadStructPtr = (ThreadStruct *)(__t->data);
+//    rt_sem_release(threadStructPtr->detachSemaphore);
 //  xSemaphoreGive(threadStructPtr->detachSemaphore);
     return 0;
 }
@@ -132,32 +145,47 @@ extern "C" unsigned __ARM_TPL_thread_hw_concurrency()
     return 1;
 }
 
+extern "C" int pthread_key_create(pthread_key_t *key, void (*destructor)(void*));
+extern "C" int pthread_key_delete(pthread_key_t key);
+extern "C" void *pthread_getspecific(pthread_key_t key);
+extern "C" int pthread_setspecific(pthread_key_t key, const void *value);
+
+
 extern "C" int __ARM_TPL_tls_create(__ARM_TPL_tls_key *__key,
                                     void (*__at_exit)(void *))
 {
-    if (localStorageKeyCounter > RT_THREAD_TLS_MAX / 2)
-        return -1;
-    *__key = localStorageKeyCounter;
-    unsigned int k = 2 * *__key ;
-    rt_thread_tls_put(NULL, k, nullptr);
-    rt_thread_tls_put(NULL, k + 1, (void *) __at_exit);
-    localStorageKeyCounter++;
+    pthread_key_t key; 
+    
+    pthread_key_create(&key, __at_exit);
+    *__key = key;
+    
+//    if (localStorageKeyCounter > RT_THREAD_TLS_MAX / 2)
+//        return -1;
+//    *__key = localStorageKeyCounter;
+//    unsigned int k = 2 * *__key ;
+//    rt_thread_tls_put(NULL, k, nullptr);
+//    rt_thread_tls_put(NULL, k + 1, (void *) __at_exit);
+//    localStorageKeyCounter++;
     return 0;
 }
 
 extern "C" void *__ARM_TPL_tls_get(__ARM_TPL_tls_key __key)
 {
-    if (__key >= localStorageKeyCounter)
-        return nullptr;
-    unsigned int k = 2 * __key;
-    return rt_thread_tls_get(nullptr, k);
+//    if (__key >= localStorageKeyCounter)
+//        return nullptr;
+//    unsigned int k = 2 * __key;
+    
+    return pthread_getspecific(__key);
+    
+//    return rt_thread_tls_get(nullptr, k);
 }
 
 extern "C" int __ARM_TPL_tls_set(__ARM_TPL_tls_key __key, void *__p)
 {
-    if (__key >= localStorageKeyCounter)
-        return -1;
-    unsigned int k = 2 * __key;
-    rt_thread_tls_put(nullptr, k, __p);
+    pthread_setspecific(__key, (void*)__p);
+//    if (__key >= localStorageKeyCounter)
+//        return -1;
+//    unsigned int k = 2 * __key;
+//    rt_thread_tls_put(nullptr, k, __p);
     return 0;
 }
