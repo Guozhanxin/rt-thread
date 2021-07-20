@@ -3,47 +3,44 @@
 void ARMTPLInit();
 #else
 #include "rtthread.h"
-//#include "task.h"
-//#include "semphr.h"
 
-#define TickType_t rt_tick_t
-#define portMAX_DELAY 1000
-#define pdTRUE 0
-#define SemaphoreHandle_t rt_sem_t
-enum MutexType
+#define ARM_TPL_MAX_DELAY 1000
+#define ARM_TPL_THREAD_STACK_SIZE 4096
+
+enum arm_tpl_mutex_type
 {
-  NORMAL,
-  RECURSIVE,
+    NORMAL,
+    RECURSIVE,
 };
 
-struct MutexStruct
+struct arm_tpl_mutex_struct
 {
-  rt_mutex_t mutex;
-  MutexType type;
+    rt_mutex_t mutex;
+    arm_tpl_mutex_type type;
 };
 
-struct ThreadStruct
+struct arm_tpl_thread_struct
 {
-  rt_thread_t task;
-  void* (*func)(void*);
-  void* arg;
-  rt_sem_t joinSemaphore;
-  rt_sem_t detachSemaphore;
+    rt_thread_t task;
+    void *(*func)(void *);
+    void *arg;
+    rt_sem_t join_sem;
+    rt_sem_t detach_sem;
 };
 
-class ConditionVariable
+class arm_tpl_cv
 {
 public:
-  ConditionVariable();
-  ~ConditionVariable();
-  void wait(rt_mutex_t lock, bool recursive);
-  int timedWait(rt_mutex_t lock, bool recursive, unsigned int timeoutMS);
-  void signal();
-  void broadcast();
+    arm_tpl_cv();
+    ~arm_tpl_cv();
+    void wait(rt_mutex_t lock, bool recursive);
+    int timedwait(rt_mutex_t lock, bool recursive, unsigned int timeout_ms);
+    void signal();
+    void broadcast();
 private:
-  SemaphoreHandle_t s;
-  SemaphoreHandle_t h;
-  rt_mutex_t x;
+    rt_sem_t s;
+    rt_sem_t h;
+    rt_mutex_t x;
 };
 
 #endif

@@ -3,85 +3,86 @@
 #include <stdatomic.h>
 #include "tpl.h"
 
-static int checkCreate(volatile __ARM_TPL_mutex_t *__vm, bool recursive = false)
+static int check_create(volatile __ARM_TPL_mutex_t *__vm, bool recursive = false)
 {
     if (__vm->data == 0)
     {
         uintptr_t mut_null = 0;
-        MutexStruct *mutexStructPtr = (MutexStruct *)rt_malloc(sizeof(MutexStruct));
-        if (mutexStructPtr == nullptr)
-            return -1;
+        arm_tpl_mutex_struct *mutex_p = (arm_tpl_mutex_struct *)rt_malloc(sizeof(arm_tpl_mutex_struct));
+        if (mutex_p == nullptr) return -1;
+
         if (recursive)
-            mutexStructPtr->mutex = rt_mutex_create("mutexx", RT_IPC_FLAG_PRIO);
+            mutex_p->mutex = rt_mutex_create("mutexx", RT_IPC_FLAG_PRIO);
         else
-            mutexStructPtr->mutex = rt_mutex_create("mutexx", RT_IPC_FLAG_PRIO);
-        if (mutexStructPtr->mutex == nullptr)
+            mutex_p->mutex = rt_mutex_create("mutexx", RT_IPC_FLAG_PRIO);
+
+        if (mutex_p->mutex == nullptr)
         {
-            rt_free(mutexStructPtr);
+            rt_free(mutex_p);
             return -1;
         }
-        mutexStructPtr->type = recursive ? RECURSIVE : NORMAL;
-        uintptr_t mut_new = reinterpret_cast<uintptr_t>(mutexStructPtr);
+        mutex_p->type = recursive ? RECURSIVE : NORMAL;
+        uintptr_t mut_new = reinterpret_cast<uintptr_t>(mutex_p);
         if (!atomic_compare_exchange_strong(&__vm->data, &mut_null, mut_new))
         {
-            rt_mutex_delete(mutexStructPtr->mutex);
-            rt_free(mutexStructPtr);
+            rt_mutex_delete(mutex_p->mutex);
+            rt_free(mutex_p);
         }
     }
     return 0;
 }
 
-static int mutexLock(MutexStruct *mutexStructPtr, TickType_t timeOut)
+static int mutexLock(arm_tpl_mutex_struct *mutex_p, rt_tick_t timeOut)
 {
-    if (mutexStructPtr->type == RECURSIVE)
+    if (mutex_p->type == RECURSIVE)
     {
-        if (rt_mutex_take(mutexStructPtr->mutex, timeOut) == pdTRUE)
+        if (rt_mutex_take(mutex_p->mutex, timeOut) == 0)
             return 0;
     }
     else
     {
-        if (rt_mutex_take(mutexStructPtr->mutex, timeOut) == pdTRUE)
+        if (rt_mutex_take(mutex_p->mutex, timeOut) == 0)
             return 0;
     }
     return -1;
 }
 
-static int mutexUnlock(MutexStruct *mutexStructPtr)
+static int mutexUnlock(arm_tpl_mutex_struct *mutex_p)
 {
-    if (mutexStructPtr->type == RECURSIVE)
-        rt_mutex_release(mutexStructPtr->mutex);
+    if (mutex_p->type == RECURSIVE)
+        rt_mutex_release(mutex_p->mutex);
     else
-        rt_mutex_release(mutexStructPtr->mutex);
+        rt_mutex_release(mutex_p->mutex);
     return 0;
 }
 
 extern "C" int __ARM_TPL_recursive_mutex_init(__ARM_TPL_mutex_t *__m)
 {
     volatile __ARM_TPL_mutex_t *__vm = __m;
-    return checkCreate(__vm, true);
+    return check_create(__vm, true);
 }
 
 extern "C" int __ARM_TPL_mutex_lock(__ARM_TPL_mutex_t *__m)
 {
     volatile __ARM_TPL_mutex_t *__vm = __m;
-    if (checkCreate(__vm))
+    if (check_create(__vm))
         return -1;
-    while (mutexLock((MutexStruct *)(__vm->data), portMAX_DELAY) != 0);
+    while (mutexLock((arm_tpl_mutex_struct *)(__vm->data), ARM_TPL_MAX_DELAY) != 0);
     return 0;
 }
 
 extern "C" int __ARM_TPL_mutex_trylock(__ARM_TPL_mutex_t *__m)
 {
     volatile __ARM_TPL_mutex_t *__vm = __m;
-    if (checkCreate(__vm))
+    if (check_create(__vm))
         return -1;
-    return mutexLock((MutexStruct *)(__vm->data), 0);
+    return mutexLock((arm_tpl_mutex_struct *)(__vm->data), 0);
 }
 
 extern "C" int __ARM_TPL_mutex_unlock(__ARM_TPL_mutex_t *__m)
 {
     volatile __ARM_TPL_mutex_t *__vm = __m;
-    return mutexUnlock((MutexStruct *)(__vm->data));
+    return mutexUnlock((arm_tpl_mutex_struct *)(__vm->data));
 }
 
 extern "C" int __ARM_TPL_mutex_destroy(__ARM_TPL_mutex_t *__m)
@@ -89,7 +90,7 @@ extern "C" int __ARM_TPL_mutex_destroy(__ARM_TPL_mutex_t *__m)
     volatile __ARM_TPL_mutex_t *__vm = __m;
     if (__vm->data != 0)
     {
-        rt_mutex_delete(((MutexStruct *)(__vm->data))->mutex);
+        rt_mutex_delete(((arm_tpl_mutex_struct *)(__vm->data))->mutex);
         rt_free((void *)(__vm->data));
         __vm->data = 0;
     }

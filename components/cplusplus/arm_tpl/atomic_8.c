@@ -11,8 +11,9 @@
 // @see https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html
 //
 
-uint64_t __atomic_load_8(volatile void *ptr, int memorder) {
-    volatile uint64_t* val_ptr = (volatile uint64_t*)ptr;
+uint64_t __atomic_load_8(volatile void *ptr, int memorder)
+{
+    volatile uint64_t *val_ptr = (volatile uint64_t *)ptr;
     register rt_base_t level;
     uint64_t tmp;
     level = rt_hw_interrupt_disable();
@@ -21,16 +22,18 @@ uint64_t __atomic_load_8(volatile void *ptr, int memorder) {
     return tmp;
 }
 
-void __atomic_store_8(volatile void *ptr, uint64_t val, int memorder) {
-    volatile uint64_t* val_ptr = (volatile uint64_t*)ptr;
+void __atomic_store_8(volatile void *ptr, uint64_t val, int memorder)
+{
+    volatile uint64_t *val_ptr = (volatile uint64_t *)ptr;
     register rt_base_t level;
     level = rt_hw_interrupt_disable();
     *val_ptr = val;
     rt_hw_interrupt_enable(level);
 }
 
-uint64_t __atomic_exchange_8(volatile void *ptr, uint64_t val, int memorder) {
-    volatile uint64_t* val_ptr = (volatile uint64_t*)ptr;
+uint64_t __atomic_exchange_8(volatile void *ptr, uint64_t val, int memorder)
+{
+    volatile uint64_t *val_ptr = (volatile uint64_t *)ptr;
     register rt_base_t level;
     uint64_t tmp;
     level = rt_hw_interrupt_disable();
@@ -40,16 +43,20 @@ uint64_t __atomic_exchange_8(volatile void *ptr, uint64_t val, int memorder) {
     return tmp;
 }
 
-bool __atomic_compare_exchange_8(volatile void *ptr, volatile void *expected, uint64_t desired, bool weak, int success_memorder, int failure_memorder) {
-    volatile uint64_t* val_ptr = (volatile uint64_t*)ptr;
-    volatile uint64_t* expected_ptr = (volatile uint64_t*)expected;
+bool __atomic_compare_exchange_8(volatile void *ptr, volatile void *expected, uint64_t desired, bool weak, int success_memorder, int failure_memorder)
+{
+    volatile uint64_t *val_ptr = (volatile uint64_t *)ptr;
+    volatile uint64_t *expected_ptr = (volatile uint64_t *)expected;
     register rt_base_t level;
     bool exchanged;
     level = rt_hw_interrupt_disable();
-    if (*val_ptr == *expected_ptr) {
+    if (*val_ptr == *expected_ptr)
+    {
         *val_ptr = desired;
         exchanged = true;
-    } else {
+    }
+    else
+    {
         *expected_ptr = *val_ptr;
         exchanged = false;
     }
@@ -71,7 +78,7 @@ uint64_t __atomic_fetch_##OPNAME##_8(volatile void *ptr, uint64_t val, int memor
 
 __atomic_fetch_op_8(add, +)
 __atomic_fetch_op_8(sub, -)
-__atomic_fetch_op_8(and, &)
-__atomic_fetch_op_8(or, |)
+__atomic_fetch_op_8( and, &)
+__atomic_fetch_op_8( or, |)
 __atomic_fetch_op_8(xor, ^)
-    
+
