@@ -31,6 +31,7 @@ extern "C" {
 #endif
 
 #ifndef HAVE_DIR_STRUCTURE
+#define HAVE_DIR_STRUCTURE
 typedef struct
 {
     int fd;                         /* directory file */
@@ -41,13 +42,21 @@ typedef struct
 #endif
 
 #ifndef HAVE_DIRENT_STRUCTURE
+#define HAVE_DIRENT_STRUCTURE
+
+#ifdef DFS_PATH_MAX
+#define DIRENT_NAME_MAX    DFS_PATH_MAX
+#else
+#define DIRENT_NAME_MAX    256
+#endif
 struct dirent
 {
     rt_uint8_t  d_type;             /* The type of the file */
     rt_uint8_t  d_namlen;           /* The length of the not including the terminating null file name */
     rt_uint16_t d_reclen;           /* length of this record */
-    char d_name[256];               /* The null-terminated file name */
+    char d_name[DIRENT_NAME_MAX];   /* The null-terminated file name */
 };
+
 #endif
 
 int            closedir(DIR *);

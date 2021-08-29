@@ -14,6 +14,7 @@
 #include <dfs.h>
 #include <dfs_fs.h>
 #include <dfs_file.h>
+#include <dirent.h>
 
 #include "devfs.h"
 

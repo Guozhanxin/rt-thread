@@ -29,6 +29,8 @@
 #include <dfs_fs.h>
 #include <dfs_file.h>
 
+#include <dirent.h>
+
 static rt_device_t disk[FF_VOLUMES] = {0};
 
 static int elm_result_to_dfs(FRESULT result)
