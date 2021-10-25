@@ -1,5 +1,31 @@
 /* generated HAL source file - do not edit */
 #include "hal_data.h"
+flash_hp_instance_ctrl_t g_flash_ctrl;
+const flash_cfg_t g_flash_cfg =
+{
+    .data_flash_bgo      = true,
+    .p_callback          = onchip_flash_callback,
+    .p_context           = NULL,
+#if defined(VECTOR_NUMBER_FCU_FRDYI)
+    .irq                 = VECTOR_NUMBER_FCU_FRDYI,
+#else
+    .irq                 = FSP_INVALID_VECTOR,
+#endif
+#if defined(VECTOR_NUMBER_FCU_FIFERR)
+    .err_irq             = VECTOR_NUMBER_FCU_FIFERR,
+#else
+    .err_irq             = FSP_INVALID_VECTOR,
+#endif
+    .err_ipl             = (3),
+    .ipl                 = (3),
+};
+/* Instance structure to use this module. */
+const flash_instance_t g_flash =
+{
+    .p_ctrl        = &g_flash_ctrl,
+    .p_cfg         = &g_flash_cfg,
+    .p_api         = &g_flash_on_flash_hp
+};
 sci_uart_instance_ctrl_t     g_uart7_ctrl;
 
             baud_setting_t               g_uart7_baud_setting =

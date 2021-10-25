@@ -3,19 +3,23 @@
         #define VECTOR_DATA_H
                 /* Number of interrupts allocated */
         #ifndef VECTOR_DATA_IRQ_COUNT
-        #define VECTOR_DATA_IRQ_COUNT    (4)
+        #define VECTOR_DATA_IRQ_COUNT    (6)
         #endif
         /* ISR prototypes */
         void sci_uart_rxi_isr(void);
         void sci_uart_txi_isr(void);
         void sci_uart_tei_isr(void);
         void sci_uart_eri_isr(void);
+        void fcu_frdyi_isr(void);
+        void fcu_fiferr_isr(void);
 
         /* Vector table allocations */
         #define VECTOR_NUMBER_SCI7_RXI ((IRQn_Type) 0) /* SCI7 RXI (Received data full) */
         #define VECTOR_NUMBER_SCI7_TXI ((IRQn_Type) 1) /* SCI7 TXI (Transmit data empty) */
         #define VECTOR_NUMBER_SCI7_TEI ((IRQn_Type) 2) /* SCI7 TEI (Transmit end) */
         #define VECTOR_NUMBER_SCI7_ERI ((IRQn_Type) 3) /* SCI7 ERI (Receive error) */
+        #define VECTOR_NUMBER_FCU_FRDYI ((IRQn_Type) 4) /* FCU FRDYI (Flash ready interrupt) */
+        #define VECTOR_NUMBER_FCU_FIFERR ((IRQn_Type) 5) /* FCU FIFERR (Flash access error interrupt) */
         typedef enum IRQn {
             Reset_IRQn = -15,
             NonMaskableInt_IRQn = -14,
@@ -32,5 +36,7 @@
             SCI7_TXI_IRQn = 1, /* SCI7 TXI (Transmit data empty) */
             SCI7_TEI_IRQn = 2, /* SCI7 TEI (Transmit end) */
             SCI7_ERI_IRQn = 3, /* SCI7 ERI (Receive error) */
+            FCU_FRDYI_IRQn = 4, /* FCU FRDYI (Flash ready interrupt) */
+            FCU_FIFERR_IRQn = 5, /* FCU FIFERR (Flash access error interrupt) */
         } IRQn_Type;
         #endif /* VECTOR_DATA_H */
