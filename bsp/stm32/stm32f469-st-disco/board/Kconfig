@@ -23,7 +23,12 @@ menu "Onboard Peripheral Drivers"
         select BSP_USING_LTDC
         select BSP_USING_LCD_MIPI
         default n
-        
+
+    config BSP_USING_LVGL
+        bool "Enable LVGL"
+        select BSP_USING_LCD_OTM8009A
+        default n
+
     config BSP_USING_QSPI_FLASH
         bool "Enable QSPI FLASH (N25Q128A qspi1)"
         select BSP_USING_QSPI
