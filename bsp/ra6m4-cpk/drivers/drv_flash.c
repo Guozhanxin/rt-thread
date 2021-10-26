@@ -8,16 +8,15 @@
  * 2018-12-5      SummerGift   first version
  */
 
-#include "board.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include "board.h"
 #include "hal_data.h"
+#include "drv_flash.h"
 
 #include <rtthread.h>
-//#ifdef BSP_USING_ON_CHIP_FLASH
-
-#include "drv_flash.h"
 
 #if defined(PKG_USING_FAL)
     #include "fal.h"
@@ -26,18 +25,11 @@
 //#define DRV_DEBUG
 #define LOG_TAG                "drv.flash"
 #ifdef DRV_DEBUG
-#define DBG_LVL               DBG_LOG
+    #define DBG_LVL               DBG_LOG
 #else
-#define DBG_LVL               DBG_INFO
+    #define DBG_LVL               DBG_INFO
 #endif /* DRV_DEBUG */
 #include <rtdbg.h>
-
-/* Flags, set from Callback function */
-static volatile _Bool g_b_flash_event_not_blank = false;
-static volatile _Bool g_b_flash_event_blank = false;
-static volatile _Bool g_b_flash_event_erase_complete = false;
-static volatile _Bool g_b_flash_event_write_complete = false;
-
 
 int _flash_init(void)
 {
@@ -74,7 +66,7 @@ int _flash_read(rt_uint32_t addr, rt_uint8_t *buf, size_t size)
 
     if ((addr + size) > FLASH_HP_CF_BLCOK_10 + BSP_FEATURE_FLASH_HP_CF_REGION1_BLOCK_SIZE)
     {
-        LOG_E("read outrange flash size! addr is (0x%p)", (void*)(addr + size));
+        LOG_E("read outrange flash size! addr is (0x%p)", (void *)(addr + size));
         return -1;
     }
 
@@ -100,12 +92,13 @@ int _flash_read(rt_uint32_t addr, rt_uint8_t *buf, size_t size)
 int _flash_write(rt_uint32_t addr, const rt_uint8_t *buf, size_t size)
 {
     rt_err_t result      = RT_EOK;
+    rt_base_t level;
     fsp_err_t err = FSP_SUCCESS;
     size_t written_size = 0;
 
     if ((addr + size) > FLASH_HP_CF_BLCOK_10 + BSP_FEATURE_FLASH_HP_CF_REGION1_BLOCK_SIZE)
     {
-        LOG_E("write outrange flash size! addr is (0x%p)", (void*)(addr + size));
+        LOG_E("write outrange flash size! addr is (0x%p)", (void *)(addr + size));
         return -RT_EINVAL;
     }
 
@@ -117,14 +110,18 @@ int _flash_write(rt_uint32_t addr, const rt_uint8_t *buf, size_t size)
 
     while (written_size < size)
     {
+        level = rt_hw_interrupt_disable();
         /* Write code flash data*/
         err = R_FLASH_HP_Write(&g_flash_ctrl, (uint32_t)(buf + written_size), addr + written_size, BSP_FEATURE_FLASH_HP_CF_WRITE_SIZE);
+        rt_hw_interrupt_enable(level);
+
         /* Error Handle */
         if (FSP_SUCCESS != err)
         {
             LOG_E("Write API failed");
             return -RT_EIO;
         }
+
         written_size += BSP_FEATURE_FLASH_HP_CF_WRITE_SIZE;
     }
 
@@ -149,10 +146,11 @@ int _flash_write(rt_uint32_t addr, const rt_uint8_t *buf, size_t size)
 int _flash_erase_8k(rt_uint32_t addr, size_t size)
 {
     fsp_err_t err = FSP_SUCCESS;
+    rt_base_t level;
 
     if ((addr + size) > BSP_FEATURE_FLASH_HP_CF_REGION0_SIZE)
     {
-        LOG_E("ERROR: erase outrange flash size! addr is (0x%p)\n", (void*)(addr + size));
+        LOG_E("ERROR: erase outrange flash size! addr is (0x%p)\n", (void *)(addr + size));
         return -RT_EINVAL;
     }
 
@@ -161,10 +159,11 @@ int _flash_erase_8k(rt_uint32_t addr, size_t size)
         return -RT_EINVAL;
     }
 
-
+    level = rt_hw_interrupt_disable();
     /* Erase Block */
     err = R_FLASH_HP_Erase(&g_flash_ctrl, RT_ALIGN_DOWN(addr, FLASH_HP_CF_BLOCK_SIZE_8KB), (size - 1) / BSP_FEATURE_FLASH_HP_CF_REGION0_BLOCK_SIZE + 1);
-    
+    rt_hw_interrupt_enable(level);
+
     if (err != FSP_SUCCESS)
     {
         LOG_E("Erase API failed");
@@ -178,10 +177,11 @@ int _flash_erase_8k(rt_uint32_t addr, size_t size)
 int _flash_erase_128k(rt_uint32_t addr, size_t size)
 {
     fsp_err_t err = FSP_SUCCESS;
+    rt_base_t level;
 
     if ((addr + size) > FLASH_HP_CF_BLCOK_10 + BSP_FEATURE_FLASH_HP_CF_REGION1_BLOCK_SIZE)
     {
-        LOG_E("ERROR: erase outrange flash size! addr is (0x%p)\n", (void*)(addr + size));
+        LOG_E("ERROR: erase outrange flash size! addr is (0x%p)\n", (void *)(addr + size));
         return -RT_EINVAL;
     }
 
@@ -189,14 +189,12 @@ int _flash_erase_128k(rt_uint32_t addr, size_t size)
     {
         return -RT_EINVAL;
     }
-    
-    rt_base_t level = rt_hw_interrupt_disable();
 
-
+    level = rt_hw_interrupt_disable();
     /* Erase Block */
     err = R_FLASH_HP_Erase(&g_flash_ctrl, RT_ALIGN_DOWN(addr, FLASH_HP_CF_BLOCK_SIZE_32KB), (size - 1) / BSP_FEATURE_FLASH_HP_CF_REGION1_BLOCK_SIZE + 1);
-    
     rt_hw_interrupt_enable(level);
+
     if (err != FSP_SUCCESS)
     {
         LOG_E("Erase API failed");
@@ -211,27 +209,24 @@ void onchip_flash_callback(flash_callback_args_t *p_args)
 {
     if (FLASH_EVENT_NOT_BLANK == p_args->event)
     {
-        g_b_flash_event_not_blank = true;
         LOG_D("event:FLASH_EVENT_NOT_BLANK");
     }
     else if (FLASH_EVENT_BLANK == p_args->event)
     {
-        g_b_flash_event_blank = true;
         LOG_D("event:FLASH_EVENT_NOT_BLANK");
     }
     else if (FLASH_EVENT_ERASE_COMPLETE == p_args->event)
     {
-        g_b_flash_event_erase_complete = true;
         LOG_D("event:FLASH_EVENT_ERASE_COMPLETE");
     }
     else if (FLASH_EVENT_WRITE_COMPLETE == p_args->event)
     {
-        g_b_flash_event_write_complete = true;
         LOG_D("event:FLASH_EVENT_WRITE_COMPLETE");
     }
     else
     {
         /*No operation */
+        LOG_D("event:No operation");
     }
 
 }
@@ -280,9 +275,9 @@ static int fal_flash_erase_128k(long offset, size_t size)
     return _flash_erase_128k(_onchip_flash_128k.addr + offset, size);
 }
 
-int flash_test()
+int flash_test(void)
 {
-#define TEST_OFF 0x00000
+#define TEST_OFF 0x10000
     const struct fal_partition *param;
     uint8_t write_buffer[BSP_FEATURE_FLASH_HP_CF_WRITE_SIZE] = {0};
     uint8_t read_buffer[BSP_FEATURE_FLASH_HP_CF_WRITE_SIZE] = {0};
@@ -297,9 +292,20 @@ int flash_test()
     fal_init();
 
     param = fal_partition_find("param");
+    if (param == RT_NULL)
+    {
+        LOG_E("not find partition param!");
+        return -1;
+    }
+    LOG_I("Erase Start...");
     fal_partition_erase(param, TEST_OFF, BSP_FEATURE_FLASH_HP_CF_REGION1_BLOCK_SIZE);
+    LOG_I("Erase succeeded!");
+    LOG_I("Write Start...");
     fal_partition_write(param, TEST_OFF, write_buffer, sizeof(write_buffer));
+    LOG_I("Write succeeded!");
+    LOG_I("Read Start...");
     fal_partition_read(param, TEST_OFF, read_buffer, BSP_FEATURE_FLASH_HP_CF_WRITE_SIZE);
+    LOG_I("Read succeeded!");
 
     for (int i = 0; i < BSP_FEATURE_FLASH_HP_CF_WRITE_SIZE; i++)
     {
@@ -316,4 +322,3 @@ int flash_test()
 MSH_CMD_EXPORT(flash_test, "drv flash test.");
 
 #endif
-//#endif /* BSP_USING_ON_CHIP_FLASH */
