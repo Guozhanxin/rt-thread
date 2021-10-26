@@ -93,3 +93,17 @@
 ![image-20211019152627412](picture/rtc_config.png)
 
 3.  [如何在 ENV 中打开 RTC](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/programming-manual/device/rtc/rtc) 
+
+## Flash
+
+1. 创建 Flash
+
+![image-20211026105031200](picture/add_flash.png)
+
+2. 配置 Flash，需要注意在 RT-Thread 中只是用了一个 flash 设备，所以没有对其进行编号，如果是新创建的 flash 设备需要注意 name 字段，在驱动中默认使用的是 `g_flash` 。
+
+![image-20211026105628706](picture/config_flash.png)
+
+3. 如何在 ENV 中打开 Flash
+
+![image-20211026123252310](picture/flash_menuconfig.png)

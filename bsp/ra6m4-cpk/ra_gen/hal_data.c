@@ -3,8 +3,8 @@
 flash_hp_instance_ctrl_t g_flash_ctrl;
 const flash_cfg_t g_flash_cfg =
 {
-    .data_flash_bgo      = true,
-    .p_callback          = onchip_flash_callback,
+    .data_flash_bgo      = false,
+    .p_callback          = NULL,
     .p_context           = NULL,
 #if defined(VECTOR_NUMBER_FCU_FRDYI)
     .irq                 = VECTOR_NUMBER_FCU_FRDYI,
@@ -16,8 +16,8 @@ const flash_cfg_t g_flash_cfg =
 #else
     .err_irq             = FSP_INVALID_VECTOR,
 #endif
-    .err_ipl             = (3),
-    .ipl                 = (3),
+    .err_ipl             = (BSP_IRQ_DISABLED),
+    .ipl                 = (BSP_IRQ_DISABLED),
 };
 /* Instance structure to use this module. */
 const flash_instance_t g_flash =

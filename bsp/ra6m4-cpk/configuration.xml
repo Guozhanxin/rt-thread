@@ -202,10 +202,10 @@
     </module>
     <module id="module.driver.flash_on_flash_hp.9557445">
       <property id="module.driver.flash.name" value="g_flash"/>
-      <property id="module.driver.flash.data_flash_bgo" value="module.driver.flash.data_flash_bgo.enabled"/>
-      <property id="module.driver.flash.p_callback" value="onchip_flash_callback"/>
-      <property id="module.driver.flash.ipl" value="board.icu.common.irq.priority3"/>
-      <property id="module.driver.flash.err_ipl" value="board.icu.common.irq.priority3"/>
+      <property id="module.driver.flash.data_flash_bgo" value="module.driver.flash.data_flash_bgo.disabled"/>
+      <property id="module.driver.flash.p_callback" value="NULL"/>
+      <property id="module.driver.flash.ipl" value="_disabled"/>
+      <property id="module.driver.flash.err_ipl" value="_disabled"/>
     </module>
     <context id="_hal.0">
       <stack module="module.driver.ioport_on_ioport.0"/>

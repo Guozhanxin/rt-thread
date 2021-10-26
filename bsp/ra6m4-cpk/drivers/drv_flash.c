@@ -205,32 +205,6 @@ int _flash_erase_128k(rt_uint32_t addr, size_t size)
     return size;
 }
 
-void onchip_flash_callback(flash_callback_args_t *p_args)
-{
-    if (FLASH_EVENT_NOT_BLANK == p_args->event)
-    {
-        LOG_D("event:FLASH_EVENT_NOT_BLANK");
-    }
-    else if (FLASH_EVENT_BLANK == p_args->event)
-    {
-        LOG_D("event:FLASH_EVENT_NOT_BLANK");
-    }
-    else if (FLASH_EVENT_ERASE_COMPLETE == p_args->event)
-    {
-        LOG_D("event:FLASH_EVENT_ERASE_COMPLETE");
-    }
-    else if (FLASH_EVENT_WRITE_COMPLETE == p_args->event)
-    {
-        LOG_D("event:FLASH_EVENT_WRITE_COMPLETE");
-    }
-    else
-    {
-        /*No operation */
-        LOG_D("event:No operation");
-    }
-
-}
-
 #if defined(PKG_USING_FAL)
 
 static int fal_flash_read_8k(long offset, rt_uint8_t *buf, size_t size);

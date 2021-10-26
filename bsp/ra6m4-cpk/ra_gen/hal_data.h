@@ -16,8 +16,8 @@ extern const flash_instance_t g_flash;
 extern flash_hp_instance_ctrl_t g_flash_ctrl;
 extern const flash_cfg_t g_flash_cfg;
 
-#ifndef onchip_flash_callback
-void onchip_flash_callback(flash_callback_args_t * p_args);
+#ifndef NULL
+void NULL(flash_callback_args_t * p_args);
 #endif
 /** UART on SCI Instance. */
             extern const uart_instance_t      g_uart7;
