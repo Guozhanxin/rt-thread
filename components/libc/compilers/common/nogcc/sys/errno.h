@@ -39,6 +39,8 @@ defined in armcc/errno.h
 
 #if defined(__ARMCC_VERSION) || defined(__IAR_SYSTEMS_ICC__)
 #include <errno.h>
+
+#ifndef _LIBCPP_ERRNO_H
 #define EPERM            (ERROR_BASE_NO + 1)
 #define ENOENT           (ERROR_BASE_NO + 2)
 #define ESRCH            (ERROR_BASE_NO + 3)
@@ -50,25 +52,32 @@ defined in armcc/errno.h
 #define EBADF            (ERROR_BASE_NO + 9)
 #define ECHILD          (ERROR_BASE_NO + 10)
 #define EAGAIN          (ERROR_BASE_NO + 11)
+#endif
 
 #ifndef ENOMEM
 #define ENOMEM          (ERROR_BASE_NO + 12)
 #endif
 
+#ifndef _LIBCPP_ERRNO_H
 #define EACCES          (ERROR_BASE_NO + 13)
 #define EFAULT          (ERROR_BASE_NO + 14)
+#endif
 #define ENOTBLK         (ERROR_BASE_NO + 15)
+
+#ifndef _LIBCPP_ERRNO_H
 #define EBUSY           (ERROR_BASE_NO + 16)
 #define EEXIST          (ERROR_BASE_NO + 17)
 #define EXDEV           (ERROR_BASE_NO + 18)
 #define ENODEV          (ERROR_BASE_NO + 19)
 #define ENOTDIR         (ERROR_BASE_NO + 20)
 #define EISDIR          (ERROR_BASE_NO + 21)
+#endif
 
 #ifndef EINVAL
 #define EINVAL          (ERROR_BASE_NO + 22)
 #endif
 
+#ifndef _LIBCPP_ERRNO_H
 #define ENFILE          (ERROR_BASE_NO + 23)
 #define EMFILE          (ERROR_BASE_NO + 24)
 #define ENOTTY          (ERROR_BASE_NO + 25)
@@ -79,6 +88,7 @@ defined in armcc/errno.h
 #define EROFS           (ERROR_BASE_NO + 30)
 #define EMLINK          (ERROR_BASE_NO + 31)
 #define EPIPE           (ERROR_BASE_NO + 32)
+#endif
 
 #ifndef EDOM
 #define EDOM            (ERROR_BASE_NO + 33)
@@ -88,6 +98,7 @@ defined in armcc/errno.h
 #define ERANGE          (ERROR_BASE_NO + 34)
 #endif
 
+#ifndef _LIBCPP_ERRNO_H
 #define EDEADLK         (ERROR_BASE_NO + 35)
 #define ENAMETOOLONG    (ERROR_BASE_NO + 36)
 #define ENOLCK          (ERROR_BASE_NO + 37)
@@ -97,6 +108,7 @@ defined in armcc/errno.h
 #define EWOULDBLOCK     EAGAIN
 #define ENOMSG          (ERROR_BASE_NO + 42)
 #define EIDRM           (ERROR_BASE_NO + 43)
+#endif
 #define ECHRNG          (ERROR_BASE_NO + 44)
 #define EL2NSYNC        (ERROR_BASE_NO + 45)
 #define EL3HLT          (ERROR_BASE_NO + 46)
@@ -113,22 +125,38 @@ defined in armcc/errno.h
 #define EBADSLT         (ERROR_BASE_NO + 57)
 #define EDEADLOCK       EDEADLK
 #define EBFONT          (ERROR_BASE_NO + 59)
+
+#ifndef _LIBCPP_ERRNO_H
 #define ENOSTR          (ERROR_BASE_NO + 60)
 #define ENODATA         (ERROR_BASE_NO + 61)
 #define ETIME           (ERROR_BASE_NO + 62)
 #define ENOSR           (ERROR_BASE_NO + 63)
+#endif
+
 #define ENONET          (ERROR_BASE_NO + 64)
 #define ENOPKG          (ERROR_BASE_NO + 65)
 #define EREMOTE         (ERROR_BASE_NO + 66)
+
+#ifndef _LIBCPP_ERRNO_H
 #define ENOLINK         (ERROR_BASE_NO + 67)
+#endif
+
 #define EADV            (ERROR_BASE_NO + 68)
 #define ESRMNT          (ERROR_BASE_NO + 69)
 #define ECOMM           (ERROR_BASE_NO + 70)
+
+#ifndef _LIBCPP_ERRNO_H
 #define EPROTO          (ERROR_BASE_NO + 71)
+#endif
+
 #define EMULTIHOP       (ERROR_BASE_NO + 72)
 #define EDOTDOT         (ERROR_BASE_NO + 73)
+
+#ifndef _LIBCPP_ERRNO_H
 #define EBADMSG         (ERROR_BASE_NO + 74)
 #define EOVERFLOW       (ERROR_BASE_NO + 75)
+#endif
+
 #define ENOTUNIQ        (ERROR_BASE_NO + 76)
 #define EBADFD          (ERROR_BASE_NO + 77)
 #define EREMCHG         (ERROR_BASE_NO + 78)
@@ -145,13 +173,19 @@ defined in armcc/errno.h
 #define ERESTART        (ERROR_BASE_NO + 85)
 #define ESTRPIPE        (ERROR_BASE_NO + 86)
 #define EUSERS          (ERROR_BASE_NO + 87)
+
+#ifndef _LIBCPP_ERRNO_H
 #define ENOTSOCK        (ERROR_BASE_NO + 88)
 #define EDESTADDRREQ    (ERROR_BASE_NO + 89)
 #define EMSGSIZE        (ERROR_BASE_NO + 90)
 #define EPROTOTYPE      (ERROR_BASE_NO + 91)
 #define ENOPROTOOPT     (ERROR_BASE_NO + 92)
 #define EPROTONOSUPPORT (ERROR_BASE_NO + 93)
+#endif
+
 #define ESOCKTNOSUPPORT (ERROR_BASE_NO + 94)
+
+#ifndef _LIBCPP_ERRNO_H
 #define EOPNOTSUPP      (ERROR_BASE_NO + 95)
 #define ENOTSUP         EOPNOTSUPP
 #define EPFNOSUPPORT    (ERROR_BASE_NO + 96)
@@ -166,14 +200,24 @@ defined in armcc/errno.h
 #define ENOBUFS         (ERROR_BASE_NO + 105)
 #define EISCONN         (ERROR_BASE_NO + 106)
 #define ENOTCONN        (ERROR_BASE_NO + 107)
+#endif
+
 #define ESHUTDOWN       (ERROR_BASE_NO + 108)
 #define ETOOMANYREFS    (ERROR_BASE_NO + 109)
+
+#ifndef _LIBCPP_ERRNO_H
 #define ETIMEDOUT       (ERROR_BASE_NO + 110)
 #define ECONNREFUSED    (ERROR_BASE_NO + 111)
+#endif
+
 #define EHOSTDOWN       (ERROR_BASE_NO + 112)
+
+#ifndef _LIBCPP_ERRNO_H
 #define EHOSTUNREACH    (ERROR_BASE_NO + 113)
 #define EALREADY        (ERROR_BASE_NO + 114)
 #define EINPROGRESS     (ERROR_BASE_NO + 115)
+#endif
+
 #define ESTALE          (ERROR_BASE_NO + 116)
 #define EUCLEAN         (ERROR_BASE_NO + 117)
 #define ENOTNAM         (ERROR_BASE_NO + 118)
@@ -183,13 +227,21 @@ defined in armcc/errno.h
 #define EDQUOT          (ERROR_BASE_NO + 122)
 #define ENOMEDIUM       (ERROR_BASE_NO + 123)
 #define EMEDIUMTYPE     (ERROR_BASE_NO + 124)
+
+#ifndef _LIBCPP_ERRNO_H
 #define ECANCELED       (ERROR_BASE_NO + 125)
+#endif
+
 #define ENOKEY          (ERROR_BASE_NO + 126)
 #define EKEYEXPIRED     (ERROR_BASE_NO + 127)
 #define EKEYREVOKED     (ERROR_BASE_NO + 128)
 #define EKEYREJECTED    (ERROR_BASE_NO + 129)
+
+#ifndef _LIBCPP_ERRNO_H
 #define EOWNERDEAD      (ERROR_BASE_NO + 130)
 #define ENOTRECOVERABLE (ERROR_BASE_NO + 131)
+#endif
+
 #define ERFKILL         (ERROR_BASE_NO + 132)
 #define EHWPOISON       (ERROR_BASE_NO + 133)
 #endif
