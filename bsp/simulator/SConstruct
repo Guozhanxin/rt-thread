@@ -73,7 +73,7 @@ else:
     env['CC']=rtconfig.CC
     env.Append(CFLAGS=rtconfig.CFLAGS)
     env.Append(LINKFLAGS=rtconfig.LFLAGS)
-    env.Append(LIBS=['winmm'])
+    # env.Append(LIBS=['c'])
 
 # prepare building environment
 

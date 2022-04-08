@@ -9,6 +9,6 @@ group = []
 
 src += Glob('*.c')
 
-if rtconfig.PLATFORM != 'gcc' or rtconfig.ARCH == 'sim':
+if rtconfig.PLATFORM != 'gcc' or rtconfig.CPU == 'win32':
     group = DefineGroup('Compiler', src, depend = [''], CPPPATH = CPPPATH)
 Return('group')

@@ -43,7 +43,7 @@ struct timezone
     int tz_dsttime;       /* type of dst correction */
 };
 
-#if !defined(_TIMEVAL_DEFINED) && !defined(_WIN32)
+#if !defined(_TIMEVAL_DEFINED) && !defined(_WIN32) && !defined(__timeval_defined)
 #define _TIMEVAL_DEFINED
 struct timeval
 {
