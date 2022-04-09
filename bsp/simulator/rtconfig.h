@@ -20,6 +20,7 @@
 
 /* kservice optimization */
 
+#define RT_KPRINTF_USING_LONGLONG
 #define RT_DEBUG
 #define RT_DEBUG_COLOR
 
@@ -45,6 +46,7 @@
 #define RT_CONSOLEBUF_SIZE 128
 #define RT_CONSOLE_DEVICE_NAME "console"
 #define RT_VER_NUM 0x40100
+#define ARCH_CPU_64BIT
 
 /* RT-Thread Components */
 
@@ -196,6 +198,7 @@
 /* entertainment: terminal games and other interesting software packages */
 
 #define SOC_SIMULATOR
+#define SOC_SIMULATOR_64BIT
 #define RT_USING_DFS_WINSHAREDIR
 #include "rtconfig_project.h"
 

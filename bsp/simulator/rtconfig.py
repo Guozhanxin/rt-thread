@@ -6,7 +6,7 @@ ARCH='sim'
 #CROSS_TOOL='msvc' or 'gcc' or 'mingw'
 #'msvc' and 'mingw' are both for windows
 # 'gcc' is for linux
-CROSS_TOOL='msvc'
+CROSS_TOOL='gcc'
 
 if os.getenv('RTT_CC'):
 	CROSS_TOOL = os.getenv('RTT_CC')
@@ -16,7 +16,7 @@ if os.getenv('RTT_CC'):
 if  CROSS_TOOL == 'gcc' or CROSS_TOOL == 'clang-analyze':
     CPU       = 'posix'
     PLATFORM  = 'gcc'
-    EXEC_PATH = ''
+    EXEC_PATH = '/usr/bin'
 
 elif  CROSS_TOOL == 'mingw':
     CPU       = 'win32'
