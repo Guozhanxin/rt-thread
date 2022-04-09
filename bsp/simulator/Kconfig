@@ -24,10 +24,6 @@ config SOC_SIMULATOR
     select RT_USING_USER_MAIN
     default y
 
-config SOC_SIMULATOR_64BIT
-    bool "Working at 64bit mode"
-    select ARCH_CPU_64BIT
-
 config RT_USING_DFS_WINSHAREDIR
     bool "Enable shared file system between windows"
     select RT_USING_POSIX_FS

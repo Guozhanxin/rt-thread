@@ -71,9 +71,6 @@ elif rtconfig.CROSS_TOOL == 'clang-analyze':
 else:
     TARGET = 'rtthread.' + rtconfig.TARGET_EXT
     env['CC']=rtconfig.CC
-
-    if GetDepend('SOC_SIMULATOR_64BIT'):
-        rtconfig.LFLAGS = rtconfig.LFLAGS.replace("gcc.ld", "gcc_elf64.ld")
     env.Append(CFLAGS=rtconfig.CFLAGS)
     env.Append(LINKFLAGS=rtconfig.LFLAGS)
     env.Append(LIBS=['m'])
