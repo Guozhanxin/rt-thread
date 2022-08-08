@@ -101,6 +101,16 @@ void rt_atomic_sub(rt_atomic_t *ptr, rt_atomic_t val)
     }while((__STREXW(oldval - val, ptr)) != 0U);
 }
 
+void rt_atomic_inc(rt_atomic_t *ptr)
+{
+    rt_atomic_add(ptr, 1);
+}
+
+void rt_atomic_dec(rt_atomic_t *ptr)
+{
+    rt_atomic_sub(ptr, 1);
+}
+
 void rt_atomic_or(rt_atomic_t *ptr, rt_atomic_t val)
 {
     rt_atomic_t oldval;
@@ -131,4 +141,28 @@ void rt_atomic_nand(rt_atomic_t *ptr, rt_atomic_t val)
     do {
         oldval = __LDREXW(ptr);
     }while((__STREXW(~(oldval & val), ptr)) != 0U);
+}
+rt_atomic_t rt_atomic_add_return(rt_atomic_t *ptr, rt_atomic_t val)
+{
+    rt_atomic_t oldval;
+    do {
+        oldval = __LDREXW(ptr);
+    }while((__STREXW(oldval + val, ptr)) != 0U);
+    return oldval + val;
+}
+rt_atomic_t rt_atomic_sub_return(rt_atomic_t *ptr, rt_atomic_t val)
+{
+    rt_atomic_t oldval;
+    do {
+        oldval = __LDREXW(ptr);
+    }while((__STREXW(oldval - val, ptr)) != 0U);
+    return oldval - val;
+}
+rt_atomic_t rt_atomic_inc_return(rt_atomic_t *ptr)
+{
+    return rt_atomic_add_return(ptr, 1);
+}
+rt_atomic_t rt_atomic_dec_return(rt_atomic_t *ptr)
+{
+    return rt_atomic_sub_return(ptr, 1);
 }

@@ -140,6 +140,8 @@ void rt_hw_us_delay(rt_uint32_t us);
 /*
  * atomic interfaces
  */
+void rt_atomic_inc(rt_atomic_t *ptr);
+void rt_atomic_dec(rt_atomic_t *ptr);
 void rt_atomic_add(rt_atomic_t *ptr, rt_atomic_t val);
 void rt_atomic_sub(rt_atomic_t *ptr, rt_atomic_t val);
 void rt_atomic_or(rt_atomic_t *ptr, rt_atomic_t val);
@@ -147,6 +149,15 @@ void rt_atomic_xor(rt_atomic_t *ptr, rt_atomic_t val);
 void rt_atomic_and(rt_atomic_t *ptr, rt_atomic_t val);
 void rt_atomic_nand(rt_atomic_t *ptr, rt_atomic_t val);
 rt_atomic_t rt_atomic_cas(rt_atomic_t *ptr, rt_atomic_t oldval, rt_atomic_t newval);
+
+rt_atomic_t rt_atomic_inc_return(rt_atomic_t *ptr);
+rt_atomic_t rt_atomic_dec_return(rt_atomic_t *ptr);
+rt_atomic_t rt_atomic_add_return(rt_atomic_t *ptr, rt_atomic_t val);
+rt_atomic_t rt_atomic_sub_return(rt_atomic_t *ptr, rt_atomic_t val);
+
+#define atomic_read(ptr)        (*(rt_atomic_t *)ptr)
+#define atomic_set(ptr, val)    (*(rt_atomic_t *)ptr = (val))
+
 
 #ifdef RT_USING_SMP
 typedef union {
