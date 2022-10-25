@@ -78,7 +78,7 @@ if PLATFORM == 'gcc':
         AFLAGS += ' -gdwarf-2'
     else:
         CFLAGS += ' -O2'
-
+    # CFLAGS += ' -Wall -g -O0 -fsanitize=address -fsanitize-recover=address,all -fno-omit-frame-pointer -fsanitize=leak -fsanitize=undefined -fdiagnostics-color'
     POST_ACTION = ''
 
 elif PLATFORM == 'mingw':
