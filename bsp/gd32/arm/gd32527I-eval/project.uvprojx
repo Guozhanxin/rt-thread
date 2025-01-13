@@ -314,7 +314,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -338,9 +338,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>RT_USING_ARMLIBC, RT_USING_LIBC, USE_STDPERIPH_DRIVER, __STDC_LIMIT_MACROS, __RTTHREAD__, __CLK_TCK=RT_TICK_PER_SECOND, GD32F527</Define>
+              <Define>GD32F527, __RTTHREAD__, __CLK_TCK=RT_TICK_PER_SECOND, RT_USING_ARMLIBC, RT_USING_LIBC, USE_STDPERIPH_DRIVER, __STDC_LIMIT_MACROS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\libraries\gd32_drivers;..\..\..\..\components\libc\posix\io\epoll;..\..\..\..\components\drivers\include;..\..\..\..\components\libc\posix\io\poll;..\..\..\..\components\libc\compilers\common\extension\fcntl\octal;..\..\..\..\components\libc\posix\io\eventfd;..\..\..\..\components\libc\posix\ipc;..\libraries\GD32F5xx_Firmware_Library\CMSIS;..\..\..\..\components\dfs\dfs_v1\include;..\..\..\..\include;..\..\..\..\libcpu\arm\cortex-m33;..\..\..\..\components\drivers\include;..\..\..\..\libcpu\arm\common;..\..\..\..\components\libc\compilers\common\extension;.;..\..\..\..\components\libc\compilers\common\include;..\libraries\GD32F5xx_Firmware_Library\CMSIS\GD\GD32F5xx\Include;board;applications;..\..\..\..\components\finsh;..\..\..\..\components\drivers\include;..\..\..\..\components\drivers\phy;..\..\..\..\components\drivers\include;..\..\..\..\components\drivers\include;..\..\..\..\components\drivers\smp_call;..\libraries\GD32F5xx_Firmware_Library\GD32F5xx_standard_peripheral\Include</IncludePath>
+              <IncludePath>..\..\..\..\components\libc\compilers\common\include;..\..\..\..\libcpu\arm\common;applications;..\..\..\..\components\drivers\include;board;..\..\..\..\libcpu\arm\cortex-m33;..\libraries\GD32F5xx_Firmware_Library\CMSIS;..\..\..\..\components\libc\posix\io\epoll;..\..\..\..\components\drivers\smp_call;..\..\..\..\components\libc\posix\ipc;..\..\..\..\components\dfs\dfs_v1\include;..\..\..\..\include;..\..\..\..\components\libc\compilers\common\extension\fcntl\octal;..\..\..\..\components\finsh;..\..\..\..\components\drivers\include;..\..\..\..\components\drivers\include;..\..\..\..\components\libc\posix\io\poll;..\..\..\..\components\libc\compilers\common\extension;..\libraries\GD32F5xx_Firmware_Library\CMSIS\GD\GD32F5xx\Include;..\..\..\..\components\drivers\phy;..\..\..\..\components\drivers\include;.;..\libraries\GD32F5xx_Firmware_Library\GD32F5xx_standard_peripheral\Include;..\..\..\..\components\drivers\include;..\libraries\gd32_drivers;..\..\..\..\components\libc\posix\io\eventfd</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1371,14 +1371,14 @@
           <GroupName>Finsh</GroupName>
           <Files>
             <File>
-              <FileName>msh_file.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\components\finsh\msh_file.c</FilePath>
-            </File>
-            <File>
               <FileName>shell.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\components\finsh\shell.c</FilePath>
+            </File>
+            <File>
+              <FileName>msh_file.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\components\finsh\msh_file.c</FilePath>
             </File>
             <File>
               <FileName>msh.c</FileName>
@@ -1386,14 +1386,14 @@
               <FilePath>..\..\..\..\components\finsh\msh.c</FilePath>
             </File>
             <File>
-              <FileName>cmd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\components\finsh\cmd.c</FilePath>
-            </File>
-            <File>
               <FileName>msh_parse.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\components\finsh\msh_parse.c</FilePath>
+            </File>
+            <File>
+              <FileName>cmd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\components\finsh\cmd.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2246,11 +2246,6 @@
           <GroupName>klibc</GroupName>
           <Files>
             <File>
-              <FileName>kstdio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\klibc\kstdio.c</FilePath>
-            </File>
-            <File>
               <FileName>rt_vsscanf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\klibc\rt_vsscanf.c</FilePath>
@@ -2259,6 +2254,11 @@
               <FileName>kerrno.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\klibc\kerrno.c</FilePath>
+            </File>
+            <File>
+              <FileName>kstdio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\klibc\kstdio.c</FilePath>
             </File>
             <File>
               <FileName>kstring.c</FileName>
@@ -2349,9 +2349,9 @@
           <GroupName>Libraries</GroupName>
           <Files>
             <File>
-              <FileName>gd32f5xx_rcu.c</FileName>
+              <FileName>gd32f5xx_dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\libraries\GD32F5xx_Firmware_Library\GD32F5xx_standard_peripheral\Source\gd32f5xx_rcu.c</FilePath>
+              <FilePath>..\libraries\GD32F5xx_Firmware_Library\GD32F5xx_standard_peripheral\Source\gd32f5xx_dma.c</FilePath>
             </File>
             <File>
               <FileName>gd32f5xx_syscfg.c</FileName>
@@ -2359,19 +2359,14 @@
               <FilePath>..\libraries\GD32F5xx_Firmware_Library\GD32F5xx_standard_peripheral\Source\gd32f5xx_syscfg.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f5xx_dma.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\libraries\GD32F5xx_Firmware_Library\GD32F5xx_standard_peripheral\Source\gd32f5xx_dma.c</FilePath>
-            </File>
-            <File>
               <FileName>gd32f5xx_usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\libraries\GD32F5xx_Firmware_Library\GD32F5xx_standard_peripheral\Source\gd32f5xx_usart.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f5xx_misc.c</FileName>
+              <FileName>gd32f5xx_rcu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\libraries\GD32F5xx_Firmware_Library\GD32F5xx_standard_peripheral\Source\gd32f5xx_misc.c</FilePath>
+              <FilePath>..\libraries\GD32F5xx_Firmware_Library\GD32F5xx_standard_peripheral\Source\gd32f5xx_rcu.c</FilePath>
             </File>
             <File>
               <FileName>gd32f5xx_gpio.c</FileName>
@@ -2379,14 +2374,19 @@
               <FilePath>..\libraries\GD32F5xx_Firmware_Library\GD32F5xx_standard_peripheral\Source\gd32f5xx_gpio.c</FilePath>
             </File>
             <File>
-              <FileName>system_gd32f5xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\libraries\GD32F5xx_Firmware_Library\CMSIS\GD\GD32F5xx\Source\system_gd32f5xx.c</FilePath>
-            </File>
-            <File>
               <FileName>gd32f5xx_exti.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\libraries\GD32F5xx_Firmware_Library\GD32F5xx_standard_peripheral\Source\gd32f5xx_exti.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f5xx_misc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libraries\GD32F5xx_Firmware_Library\GD32F5xx_standard_peripheral\Source\gd32f5xx_misc.c</FilePath>
+            </File>
+            <File>
+              <FileName>system_gd32f5xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libraries\GD32F5xx_Firmware_Library\CMSIS\GD\GD32F5xx\Source\system_gd32f5xx.c</FilePath>
             </File>
           </Files>
         </Group>
