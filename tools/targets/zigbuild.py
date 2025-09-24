@@ -61,12 +61,14 @@ def GenerateCFiles(env,project):
 
         zig_file.write("pub fn build(b: *std.Build) void {\n")
         zig_file.write("    const optimize = .ReleaseSafe;\n\n")
-
-        zig_file.write("    const elf = b.addExecutable(.{\n")
-        zig_file.write("        .name = \"rtthread.elf\",\n")
+        zig_file.write("    const root_module = b.createModule(.{\n")
         zig_file.write("        .target = b.resolveTargetQuery(target),\n")
         zig_file.write("        .optimize = optimize,\n")
         zig_file.write("        .strip = false,\n")
+        zig_file.write("    });\n\n")
+        zig_file.write("    const elf = b.addExecutable(.{\n")
+        zig_file.write("        .name = \"rtthread.elf\",\n")
+        zig_file.write("        .root_module = root_module,\n")
         zig_file.write("    });\n\n")
         zig_file.write("    elf.entry = .{ .symbol_name = \"Reset_Handler\" };\n\n")
 
